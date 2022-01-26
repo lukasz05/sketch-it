@@ -1,0 +1,24 @@
+/* Main styles file */
+@charset "utf-8";
+
+@import "./bulma/utilities/_all.sass";
+@import "./bulma/base/_all.sass";
+@import "./bulma/elements/button.sass";
+//@import "./bulma/grid/columns.sass";
+//@import "./bulma/elements/box.sass";
+//@import "./bulma/elements/container.sass";
+//@import "./bulma/elements/title.sass";
+//@import "./bulma/form/_all.sass";
+//@import "./bulma/components/navbar.sass";
+//@import "./bulma/layout/hero.sass";
+//@import "./bulma/layout/section.sass";
+//@import "./bulma/layout/footer.sass";
+//@import "./bulma/helpers/flexbox.sass";
+//@import "./bulma/helpers/position.sass";
+
+@import "./colors.scss";
+//@import "./fonts.scss";
+
+.has-text-centered {
+    text-align: center;
+}
