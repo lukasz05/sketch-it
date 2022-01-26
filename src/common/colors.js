@@ -30,8 +30,12 @@ class Palette {
         );
     }
 
+    getRandomColor() {
+        return this.colors[Math.floor(Math.random()*this.colors.length)];
+    }
+
     cloneColorsArray() {
-        return [...colors];
+        return [...this.colors];
     }
 }
 

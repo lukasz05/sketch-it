@@ -1,4 +1,4 @@
-import { paletteGrey, paletteColor } from "./colors.js";
+import { paletteGrey, paletteColor } from "./colors";
 
 
 class DrawingTool {
@@ -8,6 +8,10 @@ class DrawingTool {
     constructor(color, weight) {
         this.color = color;
         this.weight = weight;
+    }
+
+    setColor(color) {
+        this.color = color;
     }
 }
 

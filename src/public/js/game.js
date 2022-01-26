@@ -34,10 +34,10 @@ let game = new p5((s) => {
 
     function reDraw() {
         s.clear();
-        for (sh of mainDrawing.shapes) {
+        for (let sh of mainDrawing.shapes) {
             let first = true;
             let prev = null;
-            for (v of sh.coords) {
+            for (let v of sh.coords) {
                 if (first) {
                     first = false;
                     prev = v;

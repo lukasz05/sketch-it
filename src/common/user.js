@@ -1,4 +1,4 @@
-import { Pencil } from "./drawing.js"
+import { Pencil } from "./drawing"
 /* Basic user data definition */
 
 class UserData {

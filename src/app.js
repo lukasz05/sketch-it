@@ -18,8 +18,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const server = http.createServer(app);
 
+/* GET endpoints (for browsers) */
 app.get("/", (req, res) => {
-    res.render('game.html');
+    res.render('main.html');
 });
 
 const io = new Server(server);
