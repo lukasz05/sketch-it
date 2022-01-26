@@ -1,6 +1,8 @@
 /* Main styles file */
 @charset "utf-8";
 
+@import "./colors.scss";
+
 @import "./bulma/utilities/_all.sass";
 @import "./bulma/base/_all.sass";
 @import "./bulma/elements/button.sass";
@@ -16,9 +18,21 @@
 //@import "./bulma/helpers/flexbox.sass";
 //@import "./bulma/helpers/position.sass";
 
-@import "./colors.scss";
 //@import "./fonts.scss";
 
 .has-text-centered {
     text-align: center;
 }
+
+/* main button style */
+.main-control {
+    margin-top: 100px;    
+}
+
+/* for debugging reasons */
+/*
+canvas {
+    border-style: solid;
+    border-width: 4px;
+    border-color: $red;
+}*/

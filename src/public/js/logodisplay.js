@@ -10,6 +10,8 @@ let logoCanvasID = "logo-canvas";
 let bgColor = paletteGrey.getColorByHTMLClass("is-white").hex;
 let logoTool = new Pencil();
 
+let offsetX = 15;
+
 /* Create p5js context */
 let logoCanvas = new p5((s) => {
     let throttle = 0;
@@ -17,6 +19,8 @@ let logoCanvas = new p5((s) => {
     let throttleTreshold = 20;
 
     function drawLine(px, py, nx, ny) {
+        px -= offsetX;
+        nx -= offsetX;
         s.line(px*xScaleRatio, py*yScaleRatio, nx*xScaleRatio, ny*yScaleRatio);
     }
 

@@ -22,7 +22,7 @@ $grey-darkest: #343a40ff;
 $black: #212529ff;
 
 /* Primary colors */
-$primary: $orange-light;
+$primary: $blue;
 $link: $blue-light;
 $info: $blue;
 $success: $green-light;
@@ -35,3 +35,12 @@ $body-background-color: $white;
 $footer-background-color: $red;
 $footer-color: $white;
 $background: $white;
+
+.is-white {
+    background-color: $white;
+    color: $grey-darkest;
+}
+.is-black {
+    background-color: $black;
+    color: $white;
+}
