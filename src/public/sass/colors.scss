@@ -1,0 +1,37 @@
+/* As defined in js/colors.js */
+/* main colors */
+$red: #c40233ff;
+$orange: #ff7538ff;
+$orange-light: #ffa41cff;
+$yellow: #ffd300ff;
+$green-light: #80c022ff;
+$green: #00ad43ff;
+$blue-light: #0075a3ff;
+$blue: #22438fff;
+$purple: #69359cff;
+
+/* gray scale */
+$white: #f8f9faff;
+$grey-lightest: #e9ecefff;
+$grey-lighter: #dee2e6ff;
+$grey-light: #ced4daff;
+$grey: #adb5bdff;
+$grey-dark: #6c757dff;
+$grey-darker: #495057ff;
+$grey-darkest: #343a40ff;
+$black: #212529ff;
+
+/* Primary colors */
+$primary: $orange-light;
+$link: $blue-light;
+$info: $blue;
+$success: $green-light;
+$warning: $orange;
+$danger: $red;
+$dark: $grey-darker;
+$text: $grey-darkest;
+
+$body-background-color: $white;
+$footer-background-color: $red;
+$footer-color: $white;
+$background: $white;
