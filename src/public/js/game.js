@@ -2,13 +2,17 @@ import { paletteGrey, paletteColor } from "../../common/colors";
 import { UserData } from "../../common/user";
 import { Coord, Drawing } from "../../common/drawing";
 
+/*global p5*/
+/*eslint no-undef: "error"*/
+
+
 /* Canvas settings */
 let canvasDimX = 400;
 let canvasDimY = 400;
 let xScaleRatio = 1.0;
 let yScaleRatio = 1.0;
-let bgColor = paletteGrey.getColorByHTMLClass("is-white").hex;
 let gameCanvasID = "game-canvas";
+let bgColor = paletteGrey.getColorByHTMLClass("is-white").hex;
 
 /* Create random user for testing */
 let myUser = new UserData("testowy", paletteColor.colors[5], true, 0);
@@ -16,6 +20,7 @@ let myUser = new UserData("testowy", paletteColor.colors[5], true, 0);
 let mainDrawing = new Drawing();
 
 /* Create p5js context */
+// eslint-disable-next-line no-unused-vars
 let game = new p5((s) => {
     /* Global game state */
     let prevCoord = null;
@@ -30,7 +35,7 @@ let game = new p5((s) => {
         s.strokeCap(s.ROUND);
         s.strokeJoin(s.ROUND);
     }
-
+/* Not useful for now 
     function reDraw() {
         s.clear();
         for (let sh of mainDrawing.shapes) {
@@ -49,9 +54,9 @@ let game = new p5((s) => {
     }
 
     function showGuess(guess, color) {
-        /* TODO implement showing what people are guessing */
         console.log(guess);
     }
+*/
 
     s.setup = () => {
         s.createCanvas(canvasDimX, canvasDimY);

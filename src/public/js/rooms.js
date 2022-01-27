@@ -47,10 +47,10 @@ window.addEventListener("load", function () {
     /* Assign handlers for each button */
     const openRoomCreation = document.getElementById("open-room-creation-form");
     const closeRoomCreation = document.getElementById("close-room-creation-form");
-    const sendRoomCreation = document.getElementById("send-room-creation-form");
+    // const sendRoomCreation = document.getElementById("send-room-creation-form");
     const openRoomJoin = document.getElementById("open-room-join-form");
     const closeRoomJoin = document.getElementById("close-room-join-form");
-    const sendRoomJoin = document.getElementById("send-room-join-form");
+    // const sendRoomJoin = document.getElementById("send-room-join-form");
 
     openRoomCreation.addEventListener("click", () => {
         deActivateElement(joinModal);

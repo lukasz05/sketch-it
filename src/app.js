@@ -28,6 +28,10 @@ app.get("/rooms", (req, res) => {
     res.render("rooms.html");
 });
 
+app.get("/rooms/:roomName", (req, res) => {
+    res.render("game.html");
+});
+
 const io = new Server(server);
 
 // eslint-disable-next-line no-unused-vars

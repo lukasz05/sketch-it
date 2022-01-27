@@ -96,7 +96,7 @@ class Drawing {
     clear() {
         this.#size = 0;
         this.currentShape = null;
-        shapes = 0;
+        this.shapes = 0;
     }
 }
 

@@ -2,6 +2,11 @@ import { logoImage } from "../../common/logo-frames";
 import { paletteGrey, paletteColor } from "../../common/colors";
 import { Pencil } from "../../common/drawing";
 
+/*global p5*/
+/*eslint no-undef: "error"*/
+
+
+/* Canvas settings */
 let logoWidth = 700;
 let logoHeight = 250;
 let yScaleRatio = 1.0;
@@ -13,6 +18,7 @@ let logoTool = new Pencil();
 let offsetX = 15;
 
 /* Create p5js context */
+// eslint-disable-next-line no-unused-vars
 let logoCanvas = new p5((s) => {
     let throttle = 0;
     let frameNr = 0;
@@ -50,7 +56,7 @@ let logoCanvas = new p5((s) => {
 
     s.setup = () => {
         s.createCanvas(logoWidth, logoHeight);
-        //s.background(s.color(bgColor));
+        s.background(s.color(bgColor));
         logoTool.setColor(paletteColor.getRandomColor());
     };
 

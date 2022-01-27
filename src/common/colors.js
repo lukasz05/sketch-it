@@ -1,3 +1,5 @@
+import DomainError from "../utils"
+
 class PColor {
     /* html class name */
     html;
@@ -24,7 +26,7 @@ class Palette {
                 return clr;
             }
         }
-        throw new ColorNotInPalette(`${clrName} is not in palette ${this.name}`);
+        throw new ColorNotInPaletteError(`${clrName} is not in palette ${this.name}`);
     }
 
     getRandomColor() {
@@ -33,6 +35,12 @@ class Palette {
 
     cloneColorsArray() {
         return [...this.colors];
+    }
+}
+
+class ColorNotInPaletteError extends DomainError {
+    constructor(message) {
+        super(message);
     }
 }
 

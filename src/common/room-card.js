@@ -1,4 +1,4 @@
-const maxUsersInRoom = 9;
+//const maxUsersInRoom = 9;
 
 function createRoomCard(room) {
     /* Create Tile */
