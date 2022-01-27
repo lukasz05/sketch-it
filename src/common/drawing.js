@@ -52,6 +52,10 @@ class Shape {
     popBack() {
         return this.coords.shift();
     }
+
+    get length() {
+        return this.coords.length;
+    }
 }
 
 class Drawing {
@@ -86,8 +90,9 @@ class Drawing {
     }
 
     #popBack() {
-        let len = this.shapes[0].popBack();
-        if (len == 0) {
+        this.shapes[0].popBack();
+        console.log(this.shapes[0].length);
+        if (this.shapes[0].length == 0) {
             this.shapes.shift();
         }
         this.#size -= 1;

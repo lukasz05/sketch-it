@@ -34,7 +34,7 @@ let game = new p5((s) => {
         s.strokeCap(s.ROUND);
         s.strokeJoin(s.ROUND);
     }
-    /* Not useful for now 
+    /*
     function reDraw() {
         s.clear();
         for (let sh of mainDrawing.shapes) {
@@ -79,14 +79,14 @@ let game = new p5((s) => {
     s.draw = () => {
         if (myUser.canDraw) {
             /* Drawing mode */
-            if (prevCoord != null && s.mousePressed) {
+            if (prevCoord != null && s.mouseIsPressed) {
                 useTool(myUser.currentTool);
                 drawLine(prevCoord.x, prevCoord.y, s.mouseX, s.mouseY);
                 prevCoord = new Coord(s.mouseX, s.mouseY);
                 mainDrawing.pushCoord(prevCoord);
                 /* TODO socket.emit coords */
             }
-            if (!s.mousePressed && prevCoord != null) {
+            if (!s.mouseIsPressed && prevCoord != null) {
                 /* TODO socket.emit shape end marker */
                 prevCoord = null;
             }
