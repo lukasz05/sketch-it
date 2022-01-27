@@ -8,7 +8,8 @@
 @import "./bulma/elements/button.sass";
 @import "./bulma/grid/tiles.sass";
 @import "./bulma/helpers/typography.sass";
-//@import "./bulma/grid/columns.sass";
+@import "./bulma/form/shared.sass";
+@import "./bulma/form/input-textarea.sass";
 //@import "./bulma/elements/box.sass";
 @import "./bulma/elements/container.sass";
 //@import "./bulma/elements/title.sass";
@@ -16,7 +17,8 @@
 //@import "./bulma/components/navbar.sass";
 @import "./bulma/layout/hero.sass";
 @import "./bulma/layout/section.sass";
-//@import "./bulma/layout/footer.sass";
+@import "./bulma/components/card.sass";
+@import "./bulma/components/modal.sass";
 //@import "./bulma/helpers/flexbox.sass";
 //@import "./bulma/helpers/position.sass";
 
