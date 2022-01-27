@@ -1,6 +1,6 @@
 const maxUsersInRoom = 9;
 
-function createRoomCard (room) {
+function createRoomCard(room) {
     /* Create Tile */
     const tile = document.createElement("div");
     tile.classList.add("tile");
@@ -10,11 +10,11 @@ function createRoomCard (room) {
     /* Create Card */
     const card = document.createElement("div");
     card.classList.add("card");
-    
+
     /* Create card header */
-    const cardHeader = document.createElement("header"); 
+    const cardHeader = document.createElement("header");
     cardHeader.classList.add("card-header");
-    const headerTitle = document.createElement("p"); 
+    const headerTitle = document.createElement("p");
     headerTitle.classList.add("card-header-title");
     const headerContent = document.createTextNode("Room: " + room.name);
     headerTitle.appendChild(headerContent);
@@ -25,7 +25,7 @@ function createRoomCard (room) {
     cardContent.classList.add("card-content");
     const content = document.createElement("div");
     content.classList.add("content");
-    //const userCount = document.createTextNode(room.members.length 
+    //const userCount = document.createTextNode(room.members.length
     //                                          + "/" + maxUsersInRoom);
     //linebreak = document.createElement("br");
     const owner = document.createTextNode("Owner: " + room.owner);

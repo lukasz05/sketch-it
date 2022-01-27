@@ -1,7 +1,6 @@
 import { paletteGrey, paletteColor } from "../../common/colors";
-import { UserData } from "../../common/user"
-import { Coord,
-         Drawing } from "../../common/drawing";
+import { UserData } from "../../common/user";
+import { Coord, Drawing } from "../../common/drawing";
 
 /* Canvas settings */
 let canvasDimX = 400;
@@ -9,7 +8,7 @@ let canvasDimY = 400;
 let xScaleRatio = 1.0;
 let yScaleRatio = 1.0;
 let bgColor = paletteGrey.getColorByHTMLClass("is-white").hex;
-let gameCanvasID = 'game-canvas';
+let gameCanvasID = "game-canvas";
 
 /* Create random user for testing */
 let myUser = new UserData("testowy", paletteColor.colors[5], true, 0);
@@ -18,11 +17,11 @@ let mainDrawing = new Drawing();
 
 /* Create p5js context */
 let game = new p5((s) => {
-    /* Global game state */ 
+    /* Global game state */
     let prevCoord = null;
 
     function drawLine(px, py, nx, ny) {
-        s.line(px*xScaleRatio, py*yScaleRatio, nx*xScaleRatio, ny*yScaleRatio);
+        s.line(px * xScaleRatio, py * yScaleRatio, nx * xScaleRatio, ny * yScaleRatio);
     }
 
     function useTool(dTool) {
@@ -53,7 +52,7 @@ let game = new p5((s) => {
         /* TODO implement showing what people are guessing */
         console.log(guess);
     }
-    
+
     s.setup = () => {
         s.createCanvas(canvasDimX, canvasDimY);
         s.background(s.color(bgColor));
@@ -69,12 +68,13 @@ let game = new p5((s) => {
 
     s.mouseReleased = () => {
         if (myUser.canDraw) {
-            prevCoord = null; 
+            prevCoord = null;
         }
-    }
+    };
 
     s.draw = () => {
-        if (myUser.canDraw) { /* Drawing mode */
+        if (myUser.canDraw) {
+            /* Drawing mode */
             if (prevCoord != null && s.mousePressed) {
                 useTool(myUser.currentTool);
                 drawLine(prevCoord.x, prevCoord.y, s.mouseX, s.mouseY);
@@ -86,10 +86,10 @@ let game = new p5((s) => {
                 /* TODO socket.emit shape end marker */
                 prevCoord = null;
             }
-        } else { /* Spectating mode */
+        } else {
+            /* Spectating mode */
             /* get data from drawing queue */
             /* TODO */
         }
-    }
-
+    };
 }, gameCanvasID);

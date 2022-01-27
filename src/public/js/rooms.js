@@ -2,20 +2,16 @@ import { io } from "socket.io-client";
 import { createRoomCard } from "../../common/room-card";
 import eventNames from "../../rooms/event-names";
 
-
 const roomsPerPage = 10;
 var currentPage = 0;
-
 
 function activateElement(element) {
     element.classList.add("is-active");
 }
 
-
 function deActivateElement(element) {
     element.classList.remove("is-active");
 }
-
 
 function displayRooms(rooms) {
     let roomDisplay = document.getElementById("rooms-display");
@@ -30,17 +26,14 @@ function displayRooms(rooms) {
         p.classList.add("has-text-centered");
         p.appendChild(message);
         roomDisplay.appendChild(p);
-    } 
+    }
 }
 
-
-window.addEventListener('load', function() {
-
+window.addEventListener("load", function () {
     const socket = io();
-    
-    socket.emit(eventNames.GET_ROOMS_REQUEST, 
-                roomsPerPage, currentPage, (response) => {
-        if(response.success) {
+
+    socket.emit(eventNames.GET_ROOMS_REQUEST, roomsPerPage, currentPage, (response) => {
+        if (response.success) {
             displayRooms(response.data);
         } else {
             /* handle failed responses */
@@ -78,4 +71,4 @@ window.addEventListener('load', function() {
     });
 
     /* TODO! -> all other event listeners + socket.io stuff */
- });
+});

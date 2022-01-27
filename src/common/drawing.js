@@ -1,6 +1,5 @@
 import { paletteGrey, paletteColor } from "./colors";
 
-
 class DrawingTool {
     color;
     weight;
@@ -15,13 +14,11 @@ class DrawingTool {
     }
 }
 
-
 class Pencil extends DrawingTool {
     constructor() {
-        super( paletteGrey.getColorByHTMLClass("is-grey-darkest"), 7);
+        super(paletteGrey.getColorByHTMLClass("is-grey-darkest"), 7);
     }
 }
-
 
 class Highlighter extends DrawingTool {
     constructor(color = paletteColor.getColorByHTMLClass("is-yellow")) {
@@ -29,13 +26,11 @@ class Highlighter extends DrawingTool {
     }
 }
 
-
 class Eraser extends DrawingTool {
     constructor() {
         super(paletteGrey.getColorByHTMLClass("is-white"), 15);
     }
 }
-
 
 class Coord {
     constructor(x, y) {
@@ -43,7 +38,6 @@ class Coord {
         this.y = y;
     }
 }
-
 
 class Shape {
     constructor(firstCoord, tool) {
@@ -60,7 +54,6 @@ class Shape {
     }
 }
 
-
 class Drawing {
     limit;
     shapes;
@@ -73,20 +66,20 @@ class Drawing {
         this.currentShape = null;
         this.#size = 0;
     }
-    
+
     addShape(firstCoord, tool) {
         let newShape = new Shape(firstCoord, tool);
         this.shapes.push(newShape);
         this.currentShape = newShape;
         this.#size += 1;
-        if(this.limit != null && this.#size > this.limit) {
+        if (this.limit != null && this.#size > this.limit) {
             this.#popBack();
         }
     }
 
     pushCoord(newCoord) {
         this.#size += 1;
-        if(this.limit != null && this.#size > this.limit) {
+        if (this.limit != null && this.#size > this.limit) {
             this.#popBack();
         }
         this.currentShape.push(newCoord);
@@ -107,12 +100,4 @@ class Drawing {
     }
 }
 
-
-export { DrawingTool, 
-         Pencil, 
-         Highlighter,
-         Eraser,
-         Coord,
-         Shape,
-         Drawing
-};
+export { DrawingTool, Pencil, Highlighter, Eraser, Coord, Shape, Drawing };

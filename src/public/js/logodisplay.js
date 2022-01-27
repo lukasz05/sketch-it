@@ -1,6 +1,6 @@
-import { logoImage } from "../../common/logo-frames"
-import { paletteGrey, paletteColor } from "../../common/colors"
-import { Pencil } from "../../common/drawing"
+import { logoImage } from "../../common/logo-frames";
+import { paletteGrey, paletteColor } from "../../common/colors";
+import { Pencil } from "../../common/drawing";
 
 let logoWidth = 700;
 let logoHeight = 250;
@@ -21,7 +21,7 @@ let logoCanvas = new p5((s) => {
     function drawLine(px, py, nx, ny) {
         px -= offsetX;
         nx -= offsetX;
-        s.line(px*xScaleRatio, py*yScaleRatio, nx*xScaleRatio, ny*yScaleRatio);
+        s.line(px * xScaleRatio, py * yScaleRatio, nx * xScaleRatio, ny * yScaleRatio);
     }
 
     function useTool(dTool) {
@@ -62,8 +62,7 @@ let logoCanvas = new p5((s) => {
             }
             reDraw(logoImage.frames[frameNr]);
             frameNr += 1;
-        } 
+        }
         throttle += 1;
     };
-
 }, logoCanvasID);

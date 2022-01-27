@@ -13,7 +13,7 @@ const app = express();
 
 app.set("views", "./views");
 app.set("view engine", "html");
-app.engine("html", ejs.renderFile );
+app.engine("html", ejs.renderFile);
 app.use(express.static(path.join(__dirname, "public")));
 
 const server = http.createServer(app);
