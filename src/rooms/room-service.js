@@ -1,5 +1,5 @@
-const Room = require("./room");
-const DomainError = require("../utils");
+import Room from "./room.js";
+import DomainError from "../common/utils.js";
 
 class RoomService {
     #rooms;
@@ -70,4 +70,4 @@ class RoomNotFoundError extends DomainError {
     }
 }
 
-module.exports = RoomService;
+export default RoomService;

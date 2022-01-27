@@ -1,19 +1,19 @@
-const assert = require("chai").assert;
-const http = require("http");
-const { Server } = require("socket.io");
-const Client = require("socket.io-client");
+import { assert } from "chai";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import Client from "socket.io-client";
 
-const eventNames = require("../src/rooms/event-names");
-const RoomRequestsHandler = require("../src/rooms/room-requests-handler");
-const RoomService = require("../src/rooms/room-service");
-const Room = require("../src/rooms/room");
+import eventNames from "../src/rooms/event-names";
+import RoomRequestsHandler from "../src/rooms/room-requests-handler";
+import RoomService from "../src/rooms/room-service";
+import Room from "../src/rooms/room";
 
 describe("RoomRequestsHandler", function () {
     let io;
     let clientSocket1, clientSocket2, clientSocket3;
     let roomService;
     beforeEach(function (done) {
-        const httpServer = http.createServer();
+        const httpServer = createServer();
         io = new Server(httpServer);
         roomService = new RoomService();
         // eslint-disable-next-line no-unused-vars

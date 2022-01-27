@@ -1,4 +1,4 @@
-const DomainError = require("../utils");
+import DomainError from "../common/utils.js";
 
 class Room {
     name;
@@ -76,4 +76,4 @@ class UserNotInRoomError extends DomainError {
     }
 }
 
-module.exports = Room;
+export default Room;

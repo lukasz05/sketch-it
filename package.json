@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "",
     "main": "src/app.js",
+    "type": "module",
     "scripts": {
         "prettier": "prettier --check \"**/*.{js,json}\"",
         "lint": "eslint .",

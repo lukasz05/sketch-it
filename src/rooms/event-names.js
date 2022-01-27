@@ -15,4 +15,4 @@ const eventNames = {
     ROOM_SETTINGS_UPDATED_NOTIFICATION: "room settings updated",
 };
 
-module.exports = eventNames;
+export default eventNames;

@@ -1,22 +1,25 @@
-const http = require("http");
-const express = require("express");
-const ejs = require("ejs");
-const RoomRequestsHandler = require("./rooms/room-requests-handler");
-const path = require("path");
-const { Server } = require("socket.io");
-const RoomService = require("./rooms/room-service");
+import { createServer } from "http";
+import express from "express";
+import { renderFile } from "ejs";
+import RoomRequestsHandler from "./rooms/room-requests-handler.js";
+import { join, dirname } from "path";
+import { Server } from "socket.io";
+import RoomService from "./rooms/room-service.js";
+import { fileURLToPath } from "url";
 
 const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || "0.0.0.0";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const app = express();
 
-app.set("views", "./views");
+app.set("views", join(__dirname, "views"));
 app.set("view engine", "html");
-app.engine("html", ejs.renderFile);
-app.use(express.static(path.join(__dirname, "public")));
+app.engine("html", renderFile);
+app.use(express.static(join(__dirname, "public")));
 
-const server = http.createServer(app);
+const server = createServer(app);
 
 /* GET endpoints (for browsers) */
 

@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
-import { createRoomCard } from "../../common/room-card";
-import eventNames from "../../rooms/event-names";
+import { createRoomCard } from "../../common/room-card.js";
+import eventNames from "../../rooms/event-names.js";
 
 const roomsPerPage = 10;
 let currentPage = 0;

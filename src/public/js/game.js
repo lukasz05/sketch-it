@@ -1,6 +1,6 @@
-import { paletteGrey, paletteColor } from "../../common/colors";
-import { UserData } from "../../common/user";
-import { Coord, Drawing } from "../../common/drawing";
+import { paletteGrey, paletteColor } from "../../common/colors.js";
+import { UserData } from "../../common/user.js";
+import { Coord, Drawing } from "../../common/drawing.js";
 
 /*global p5*/
 /*eslint no-undef: "error"*/

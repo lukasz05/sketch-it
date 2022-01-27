@@ -1,6 +1,6 @@
-import { logoImage } from "../../common/logo-frames";
-import { paletteGrey, paletteColor } from "../../common/colors";
-import { Pencil } from "../../common/drawing";
+import { logoImage } from "../../common/logo-frames.js";
+import { paletteGrey, paletteColor } from "../../common/colors.js";
+import { Pencil } from "../../common/drawing.js";
 
 /*global p5*/
 /*eslint no-undef: "error"*/

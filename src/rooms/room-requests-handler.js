@@ -1,5 +1,5 @@
-const eventNames = require("./event-names");
-const DomainError = require("../utils");
+import eventNames from "./event-names.js";
+import DomainError from "../common/utils.js";
 
 class RoomRequestsHandler {
     #io;
@@ -254,4 +254,4 @@ class IllegalOperationError extends DomainError {
     }
 }
 
-module.exports = RoomRequestsHandler;
+export default RoomRequestsHandler;
