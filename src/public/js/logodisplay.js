@@ -5,7 +5,6 @@ import { Pencil } from "../../common/drawing";
 /*global p5*/
 /*eslint no-undef: "error"*/
 
-
 /* Canvas settings */
 let logoWidth = 700;
 let logoHeight = 250;

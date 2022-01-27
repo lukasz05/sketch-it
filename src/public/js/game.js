@@ -5,7 +5,6 @@ import { Coord, Drawing } from "../../common/drawing";
 /*global p5*/
 /*eslint no-undef: "error"*/
 
-
 /* Canvas settings */
 let canvasDimX = 400;
 let canvasDimY = 400;
@@ -35,7 +34,7 @@ let game = new p5((s) => {
         s.strokeCap(s.ROUND);
         s.strokeJoin(s.ROUND);
     }
-/* Not useful for now 
+    /* Not useful for now 
     function reDraw() {
         s.clear();
         for (let sh of mainDrawing.shapes) {

@@ -1,4 +1,4 @@
-import DomainError from "../utils"
+import DomainError from "../utils";
 
 class PColor {
     /* html class name */
