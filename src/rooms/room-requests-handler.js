@@ -108,7 +108,7 @@ class RoomRequestsHandler {
             const username = this.#socketToUserMap[socket.id];
             const ownerChanged = username == room.owner;
             room.removeMember(username);
-            if (room.members.length == 0) {
+            if (room.getMemberNames().length == 0) {
                 this.#roomService.removeRoom(room.name);
             }
             delete this.#socketToUserMap[socket.id];

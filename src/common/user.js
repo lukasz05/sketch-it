@@ -10,7 +10,7 @@ class UserData {
 
     constructor(userID, color, canDraw, score) {
         this.userID = userID;
-        this.color = color.hex;
+        this.color = color;
         this.canDraw = canDraw;
         this.score = score;
         this.currentTool = new Pencil();

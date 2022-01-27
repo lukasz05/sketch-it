@@ -3,10 +3,10 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import Client from "socket.io-client";
 
-import eventNames from "../src/rooms/event-names";
-import RoomRequestsHandler from "../src/rooms/room-requests-handler";
-import RoomService from "../src/rooms/room-service";
-import Room from "../src/rooms/room";
+import eventNames from "../src/rooms/event-names.js";
+import RoomRequestsHandler from "../src/rooms/room-requests-handler.js";
+import RoomService from "../src/rooms/room-service.js";
+import { Room } from "../src/rooms/room.js";
 
 describe("RoomRequestsHandler", function () {
     let io;
@@ -234,10 +234,10 @@ describe("RoomRequestsHandler", function () {
                         function (response) {
                             assert.isTrue(response.success);
 
-                            const expectedRoomMembers = [ownerName, memberName];
+                            const expectedRoomMemberNames = [ownerName, memberName];
                             const actualRoom = roomService.getRoomByName(roomName);
                             const returnedRoom = response.data;
-                            assert.deepEqual(actualRoom.members, expectedRoomMembers);
+                            assert.deepEqual(actualRoom.getMemberNames(), expectedRoomMemberNames);
                             assert.deepEqual(returnedRoom, actualRoom);
 
                             clientSocket1.on(
@@ -279,6 +279,33 @@ describe("RoomRequestsHandler", function () {
                     }
                 );
             });
+        });
+        it("should return RoomAlreadyFullError when room is already full", function (done) {
+            const roomName = "room";
+            clientSocket1.emit(
+                eventNames.CREATE_ROOM_REQUEST,
+                "owner",
+                roomName,
+                { maxMembersCount: 1 },
+                function () {
+                    clientSocket2.emit(
+                        eventNames.JOIN_ROOM_REQUEST,
+                        "member",
+                        roomName,
+                        function (response) {
+                            assert.deepEqual(response, {
+                                success: false,
+                                data: {
+                                    name: "RoomAlreadyFullError",
+                                    message: `Room "${roomName}" is already full.`,
+                                },
+                            });
+
+                            done();
+                        }
+                    );
+                }
+            );
         });
         it("should return SocketAlreadyInRoomError when the client is already in some room", function (done) {
             clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, "owner", "room 1", {}, function () {
@@ -329,9 +356,12 @@ describe("RoomRequestsHandler", function () {
                             clientSocket2.emit(eventNames.LEAVE_ROOM_REQUEST, function (response) {
                                 assert.deepEqual(response, { success: true });
 
-                                const expectedRoomMembers = [ownerName];
+                                const expectedRoomMemberNames = [ownerName];
                                 const actualRoom = roomService.getRoomByName(roomName);
-                                assert.deepEqual(actualRoom.members, expectedRoomMembers);
+                                assert.deepEqual(
+                                    actualRoom.getMemberNames(),
+                                    expectedRoomMemberNames
+                                );
 
                                 clientSocket1.on(
                                     eventNames.USER_LEFT_ROOM_NOTIFICATION,
@@ -457,12 +487,15 @@ describe("RoomRequestsHandler", function () {
                                         kickedMemberName,
                                         function (response) {
                                             assert.deepEqual(response, { success: true });
-                                            const expectedRoomMembers = [
+                                            const expectedRoomMemberNames = [
                                                 ownerName,
                                                 otherMemberNAme,
                                             ];
                                             const room = roomService.getRoomByName(roomName);
-                                            assert.deepEqual(room.members, expectedRoomMembers);
+                                            assert.deepEqual(
+                                                room.getMemberNames(),
+                                                expectedRoomMemberNames
+                                            );
 
                                             clientSocket3.on(
                                                 eventNames.USER_KICKED_FROM_ROOM_NOTIFICATION,
@@ -857,7 +890,7 @@ describe("RoomRequestsHandler", function () {
                                     assert.equal(username, memberName);
 
                                     const room = roomService.getRoomByName(roomName);
-                                    assert.deepEqual(room.members, [ownerName]);
+                                    assert.deepEqual(room.getMemberNames(), [ownerName]);
 
                                     done();
                                 }

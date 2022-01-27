@@ -1,4 +1,4 @@
-import Room from "./room.js";
+import { Room } from "./room.js";
 import DomainError from "../common/utils.js";
 
 class RoomService {
