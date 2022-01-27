@@ -1,4 +1,4 @@
-let logoImage = {
+const logoImage = {
     frameCount: 2,
     frames: [
         {

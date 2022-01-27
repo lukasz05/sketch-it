@@ -3,7 +3,7 @@ import { createRoomCard } from "../../common/room-card";
 import eventNames from "../../rooms/event-names";
 
 const roomsPerPage = 10;
-var currentPage = 0;
+let currentPage = 0;
 
 function activateElement(element) {
     element.classList.add("is-active");
@@ -14,7 +14,7 @@ function deActivateElement(element) {
 }
 
 function displayRooms(rooms) {
-    let roomDisplay = document.getElementById("rooms-display");
+    const roomDisplay = document.getElementById("rooms-display");
     if (rooms.length > 0) {
         for (let room of rooms) {
             let card = createRoomCard(room);

@@ -44,7 +44,7 @@ class ColorNotInPaletteError extends DomainError {
     }
 }
 
-let paletteColor = new Palette(
+const paletteColor = new Palette(
     [
         new PColor({ html: "is-red", hex: "#c40233" }),
         new PColor({ html: "is-orange", hex: "#ff7538" }),
@@ -59,7 +59,7 @@ let paletteColor = new Palette(
     "main colors"
 );
 
-let paletteGrey = new Palette(
+const paletteGrey = new Palette(
     [
         new PColor({ html: "is-white", hex: "#f8f9fa" }),
         new PColor({ html: "is-grey-lightest", hex: "#e9ecef" }),

@@ -6,22 +6,21 @@ import { Pencil } from "../../common/drawing";
 /*eslint no-undef: "error"*/
 
 /* Canvas settings */
-let logoWidth = 700;
-let logoHeight = 250;
+const logoWidth = 700;
+const logoHeight = 250;
 let yScaleRatio = 1.0;
 let xScaleRatio = 1.0;
-let logoCanvasID = "logo-canvas";
-let bgColor = paletteGrey.getColorByHTMLClass("is-white").hex;
-let logoTool = new Pencil();
-
-let offsetX = 15;
+const logoCanvasID = "logo-canvas";
+const bgColor = paletteGrey.getColorByHTMLClass("is-white").hex;
+const logoTool = new Pencil();
+const offsetX = 15;
 
 /* Create p5js context */
 // eslint-disable-next-line no-unused-vars
-let logoCanvas = new p5((s) => {
+const logoCanvas = new p5((s) => {
     let throttle = 0;
     let frameNr = 0;
-    let throttleTreshold = 20;
+    const throttleTreshold = 20;
 
     function drawLine(px, py, nx, ny) {
         px -= offsetX;
