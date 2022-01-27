@@ -1,5 +1,6 @@
 const http = require("http");
 const express = require("express");
+const ejs = require("ejs");
 const RoomRequestsHandler = require("./rooms/room-requests-handler");
 const path = require("path");
 const { Server } = require("socket.io");
@@ -9,10 +10,26 @@ const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || "0.0.0.0";
 
 const app = express();
+
+app.set("views", "./views");
+app.set("view engine", "html");
+app.engine("html", ejs.renderFile);
+app.use(express.static(path.join(__dirname, "public")));
+
 const server = http.createServer(app);
 
+/* GET endpoints (for browsers) */
+
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "/index.html"));
+    res.render("main.html");
+});
+
+app.get("/rooms", (req, res) => {
+    res.render("rooms.html");
+});
+
+app.get("/rooms/:roomName", (req, res) => {
+    res.render("game.html");
 });
 
 const io = new Server(server);

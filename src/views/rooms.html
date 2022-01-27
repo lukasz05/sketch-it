@@ -1,0 +1,87 @@
+<html>
+    <head>
+        <title>Sketch-it</title>
+        <link rel="stylesheet" href="/css/style.css">
+        <script src="/js/dist/rooms.js"></script>
+    </head>
+    <body>
+        <div id="modal-create-room" class="modal">
+            <div class="modal-background"></div>
+                <div class="modal-content">
+                    <div class="modal-card">
+                        <header class="modal-card-head">
+                            <p class="modal-card-title">Create Room</p>
+                        </header>
+                        <section class="modal-card-body">
+                        <!-- Room Creation Form -->
+                        <form id="create-room-form">
+                            <label for="create-room-name">Room name:</label><br>
+                            <input class="input" type="text" id="create-room-name" name="create-room-name" placeholder="Room name" value=""><br>
+                            <label for="create-user-name">Player name:</label><br>
+                            <input class="input" type="text" id="create-user-name" name="create-user-name" placeholder="User name" value=""><br><br>
+                            <p>TODO! - create more input fields for other settings</p>
+                        </form> 
+                        </section>
+                        <footer class="modal-card-foot">
+                            <button id="send-room-creation-form" class="button is-success">Create</button>
+                        </footer>
+                    </div>
+                </div>
+                <button id="close-room-creation-form" class="modal-close is-large" aria-label="close"></button>
+        </div>
+        <div id="modal-join-room" class="modal">
+            <div class="modal-background"></div>
+                <div class="modal-content">
+                    <div class="modal-card">
+                        <header class="modal-card-head">
+                            <p class="modal-card-title">Join Room</p>
+                        </header>
+                        <section class="modal-card-body">
+                        <!-- Join Room Form -->
+                        <form id="join-room-form">
+                            <label for="join-room-name">Room name:</label><br>
+                            <input class="input" type="text" id="join-room-name" name="join-room-name" placeholder="Room name" value=""><br>
+                            <p>TODO! - create more input fields for other settings</p>
+                        </form> 
+                        </section>
+                        <footer class="modal-card-foot">
+                            <button id="send-room-join-form" class="button is-success">Join</button>
+                        </footer>
+                    </div>
+                </div>
+                <button id="close-room-join-form" class="modal-close is-large" aria-label="close"></button>
+        </div>
+        <section class="hero is-primary">
+            <div class="hero-body">
+                <p class="title is-size-1"> Rooms </p>
+            </div>
+        </section>
+        <section class="section is-small">
+        </section>
+        <div class="container is-max-desktop">
+            <div class="tile is-ancestor">
+                <div class="tile is-parent"></div>
+                <div class="tile is-parent">
+                    <div class="tile is-child has-text-centered is-vertical">
+                        <button id="open-room-creation-form" class="button is-primary">Create Room</button>
+                    </div>
+                </div>
+                <div class="tile is-parent">
+                    <div class="tile is-child has-text-centered is-vertical">
+                        <button id="open-room-join-form" class="button is-primary">Join Room</button>
+                    </div>
+                </div>
+                <div class="tile is-parent"></div>
+            </div>
+            <div class="tile is-ancestor is-primary is-vertical">
+                <div class="tile is-parent is-2"></div>
+                <div id="rooms-display" class="tile is-parent is-vertical">
+                </div>
+                <div class="tile is-parent is-2"></div>
+            </div>
+        </div>
+    </body>
+</html>
+
+
+
