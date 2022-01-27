@@ -21,6 +21,7 @@
     },
     "homepage": "https://github.com/lukasz05/drawing-game#readme",
     "dependencies": {
+        "bulma": "^0.9.3",
         "ejs": "^3.1.6",
         "express": "^4.17.2",
         "socket.io": "^4.4.1"
