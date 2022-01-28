@@ -62,19 +62,26 @@ class DrawingScheduler {
     }
 
     removeUser(username) {
-        if (this.#isSchedulerRunning() && this.#queueToDraw.length == 1) {
-            throw new LastUserError("Cannot remove the only user when the scheduler is running.");
-        }
-        if (username == this.currentlyDrawingUser) {
-            this.scheduleNextUser();
+        if (this.#isSchedulerRunning()) {
+            if (this.#queueToDraw.length == 1) {
+                if (this.#timeoutID) {
+                    clearTimeout(this.#timeoutID);
+                }
+                this.#isSchedulerRunning = false;
+                this.currentlyDrawingUser = null;
+            } else if (username == this.currentlyDrawingUser) {
+                this.scheduleNextUser();
+            }
         }
         this.#queueToDraw = this.#queueToDraw.filter((u) => u != username);
     }
 
     #drawingTimeoutCallback() {
+        const previouslyDrawingUser = this.currentlyDrawingUser;
         this.scheduleNextUser();
         this.#drawingUserChangedListeners.forEach((listener) =>
             listener({
+                previouslyDrawingUser: previouslyDrawingUser,
                 currentlyDrawingUser: this.currentlyDrawingUser,
                 drawingEndTime: this.drawingEndTime,
             })
@@ -89,12 +96,6 @@ class EmptyQueueError extends DomainError {
 }
 
 class SchedulerAlreadyRunningError extends DomainError {
-    constructor(message) {
-        super(message);
-    }
-}
-
-class LastUserError extends DomainError {
     constructor(message) {
         super(message);
     }

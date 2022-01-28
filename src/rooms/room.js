@@ -8,18 +8,26 @@ class Room {
     name;
     owner;
     members;
-
     createdAt;
     settings;
 
-    #maxMembersCount;
-
+    #drawingScheduler;
     #unusedColorsPalette;
 
-    constructor({ name, owner, settings }) {
+    #maxMembersCount;
+
+    constructor(name, owner, settings, drawingScheduler) {
         this.name = name;
         this.owner = owner;
         this.settings = settings;
+
+        this.drawingScheduler = drawingScheduler;
+        this.drawingScheduler.addDrawingUserChangedListener(
+            (previouslyDrawingUser, currentlyDrawingUser) => {
+                this.members[previouslyDrawingUser].canDraw = false;
+                this.members[currentlyDrawingUser].canDraw = true;
+            }
+        );
 
         this.#maxMembersCount = settings.maxMembersCount
             ? settings.maxMembersCount
@@ -47,6 +55,7 @@ class Room {
             throw new RoomAlreadyFullError(`Room "${this.name}" is already full.`);
         }
         this.members[username] = new UserData(username, this.#pickColorForUser(), false, 0);
+        this.#drawingScheduler.addUser(username);
     }
 
     removeMember(username) {
@@ -56,6 +65,7 @@ class Room {
         if (username == this.owner) {
             this.#chooseNewRandomOwner();
         }
+        this.#drawingScheduler.removeUser(username);
     }
 
     setOwner(newOwner) {
