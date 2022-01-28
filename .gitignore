@@ -7,8 +7,8 @@ yarn-error.log*
 lerna-debug.log*
 
 # Minified js and compiled css
-./src/public/js/dist/*
-./src/public/css/*
+src/public/js/dist/
+src/public/css/
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
