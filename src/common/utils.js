@@ -12,4 +12,22 @@ class DomainError extends Error {
     }
 }
 
-export default DomainError;
+class UserNotPermittedError extends DomainError {
+    constructor(message) {
+        super(message);
+    }
+}
+
+class IllegalOperationError extends DomainError {
+    constructor(message) {
+        super(message);
+    }
+}
+
+class SocketNotInRoomError extends DomainError {
+    constructor(message) {
+        super(message);
+    }
+}
+
+export { DomainError, UserNotPermittedError, IllegalOperationError, SocketNotInRoomError };

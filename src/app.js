@@ -6,6 +6,8 @@ import { join, dirname } from "path";
 import { Server } from "socket.io";
 import RoomService from "./rooms/room-service.js";
 import { fileURLToPath } from "url";
+import GameStateRequestsHandler from "./game-state/game-state-requests-handler.js";
+import WordProvider from "./word-provider.js";
 
 const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || "0.0.0.0";
@@ -37,8 +39,18 @@ app.get("/rooms/:roomName", (req, res) => {
 
 const io = new Server(server);
 
+const socketToUserMap = {};
+const roomService = new RoomService();
+const wordProvider = new WordProvider(join(__dirname, "words.json"));
 // eslint-disable-next-line no-unused-vars
-const roomRequestsHandler = new RoomRequestsHandler(io, new RoomService());
+const roomRequestsHandler = new RoomRequestsHandler(io, socketToUserMap, roomService);
+// eslint-disable-next-line no-unused-vars
+const gameStateRequestsHandler = new GameStateRequestsHandler(
+    io,
+    socketToUserMap,
+    roomService,
+    wordProvider
+);
 
 server.listen(PORT, HOST);
 console.log(`Running on http://${HOST}:${PORT}`);

@@ -1,4 +1,4 @@
-import DomainError from "./utils.js";
+import { DomainError } from "./utils.js";
 
 class PColor {
     /* html class name */

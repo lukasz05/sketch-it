@@ -12,12 +12,15 @@ describe("RoomRequestsHandler", function () {
     let io;
     let clientSocket1, clientSocket2, clientSocket3;
     let roomService;
+    let socketToUserMap;
     beforeEach(function (done) {
         const httpServer = createServer();
         io = new Server(httpServer);
+        socketToUserMap = {};
         roomService = new RoomService();
         // eslint-disable-next-line no-unused-vars
-        const roomRequestsHandler = new RoomRequestsHandler(io, roomService);
+        const roomRequestsHandler = new RoomRequestsHandler(io, socketToUserMap, roomService);
+
         httpServer.listen(function () {
             const port = httpServer.address().port;
             clientSocket1 = new Client(`http://localhost:${port}`);
@@ -43,11 +46,7 @@ describe("RoomRequestsHandler", function () {
             let sampleRooms = [];
             let prevCreatedAt = null;
             for (let i = 1; i <= count; i++) {
-                const room = new Room({
-                    name: `room ${i}`,
-                    owner: "owner",
-                    settings: {},
-                });
+                const room = new Room(`room ${i}`, "owner", {});
                 for (let j = 1; j <= 5; j++) {
                     room.addMember(`member ${j}`);
                 }
@@ -55,6 +54,9 @@ describe("RoomRequestsHandler", function () {
                     room.createdAt = prevCreatedAt + 5;
                 }
                 prevCreatedAt = room.createdAt;
+                room.hasGameStarted = false;
+                room.currentlyDrawingUser = null;
+                room.drawingEndTime = null;
                 sampleRooms.push(room);
             }
             return sampleRooms;
@@ -149,11 +151,7 @@ describe("RoomRequestsHandler", function () {
                         success: true,
                     });
 
-                    const expectedRoom = new Room({
-                        name: roomName,
-                        owner: ownerName,
-                        settings: roomSettings,
-                    });
+                    const expectedRoom = new Room(roomName, ownerName, roomSettings);
                     const actualRooms = roomService.getAllRooms();
                     assert.lengthOf(actualRooms, 1);
                     assert.strictEqual(actualRooms[0].name, expectedRoom.name);

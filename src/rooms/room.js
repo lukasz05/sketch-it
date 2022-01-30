@@ -1,8 +1,9 @@
 import { Palette, paletteColor } from "../common/colors.js";
 import { UserData } from "../common/user.js";
-import DomainError from "../common/utils.js";
+import { DomainError } from "../common/utils.js";
 
 const MAX_ROOM_MEMBERS_COUNT = 9;
+const POINTS_FOR_SUCCESSFUL_GUESS = 100;
 
 class Room {
     name;
@@ -10,35 +11,63 @@ class Room {
     members;
     createdAt;
     settings;
+    currentlyDrawingUser;
+    hasGameStarted;
+    drawingEndTime;
 
     #drawingScheduler;
     #unusedColorsPalette;
 
     #maxMembersCount;
+    #pointsForSuccessfulGuess;
 
-    constructor(name, owner, settings, drawingScheduler) {
+    constructor(name, owner, settings) {
         this.name = name;
         this.owner = owner;
         this.settings = settings;
-
-        this.drawingScheduler = drawingScheduler;
-        this.drawingScheduler.addDrawingUserChangedListener(
-            (previouslyDrawingUser, currentlyDrawingUser) => {
-                this.members[previouslyDrawingUser].canDraw = false;
-                this.members[currentlyDrawingUser].canDraw = true;
-            }
-        );
 
         this.#maxMembersCount = settings.maxMembersCount
             ? settings.maxMembersCount
             : MAX_ROOM_MEMBERS_COUNT;
 
+        this.#pointsForSuccessfulGuess = settings.pointsForSuccessfulGuess
+            ? settings.pointsForSuccessfulGuess
+            : POINTS_FOR_SUCCESSFUL_GUESS;
+
         this.members = {};
         this.createdAt = Date.now();
+        this.currentlyDrawingUser = null;
+        this.drawingEndTime = null;
+        this.hasGameStarted = false;
 
         this.#unusedColorsPalette = new Palette(paletteColor.cloneColorsArray());
 
         this.addMember(owner);
+    }
+
+    setDrawingScheduler(drawingScheduler) {
+        this.#drawingScheduler = drawingScheduler;
+        this.#drawingScheduler.addDrawingUserChangedListener(
+            (previouslyDrawingUser, currentlyDrawingUser, drawingEndTime) => {
+                if (previouslyDrawingUser) {
+                    const user = this.members[previouslyDrawingUser];
+                    if (user) {
+                        this.members[previouslyDrawingUser].canDraw = false;
+                    }
+                }
+                this.members[currentlyDrawingUser].canDraw = true;
+                this.currentlyDrawingUser = currentlyDrawingUser;
+                this.drawingEndTime = drawingEndTime;
+            }
+        );
+    }
+
+    setGuessingService(guessingService) {
+        guessingService.addGuessListener((username, word, success) => {
+            if (success) {
+                this.members[username].score += this.#pointsForSuccessfulGuess;
+            }
+        });
     }
 
     getMemberNames() {
@@ -55,7 +84,9 @@ class Room {
             throw new RoomAlreadyFullError(`Room "${this.name}" is already full.`);
         }
         this.members[username] = new UserData(username, this.#pickColorForUser(), false, 0);
-        this.#drawingScheduler.addUser(username);
+        if (this.#drawingScheduler) {
+            this.#drawingScheduler.addUser(username);
+        }
     }
 
     removeMember(username) {
@@ -65,7 +96,9 @@ class Room {
         if (username == this.owner) {
             this.#chooseNewRandomOwner();
         }
-        this.#drawingScheduler.removeUser(username);
+        if (this.#drawingScheduler) {
+            this.#drawingScheduler.removeUser(username);
+        }
     }
 
     setOwner(newOwner) {
@@ -85,7 +118,7 @@ class Room {
     #pickColorForUser() {
         const color = this.#unusedColorsPalette.getRandomColor();
         this.#unusedColorsPalette.colors = this.#unusedColorsPalette.colors.filter(
-            (c) => c.hex == color.hex
+            (c) => c.hex != color.hex
         );
         return color;
     }

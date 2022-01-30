@@ -1,15 +1,19 @@
 import eventNames from "./event-names.js";
-import DomainError from "../common/utils.js";
+import {
+    DomainError,
+    SocketNotInRoomError,
+    UserNotPermittedError,
+    IllegalOperationError,
+} from "../common/utils.js";
 
 class RoomRequestsHandler {
     #io;
     #roomService;
     #socketToUserMap;
-    constructor(io, roomService) {
+    constructor(io, socketToUserMap, roomService) {
         this.#io = io;
+        this.#socketToUserMap = socketToUserMap;
         this.#roomService = roomService;
-
-        this.#socketToUserMap = {};
 
         this.#initializeEventListeners();
     }
@@ -103,7 +107,6 @@ class RoomRequestsHandler {
     #handleLeaveRoomRequest(socket, callback) {
         try {
             this.#assertSocketInRoom(socket);
-
             const room = this.#getRoomBySocket(socket);
             const username = this.#socketToUserMap[socket.id];
             const ownerChanged = username == room.owner;
@@ -231,24 +234,6 @@ class RoomRequestsHandler {
 }
 
 class SocketAlreadyInRoomError extends DomainError {
-    constructor(message) {
-        super(message);
-    }
-}
-
-class SocketNotInRoomError extends DomainError {
-    constructor(message) {
-        super(message);
-    }
-}
-
-class UserNotPermittedError extends DomainError {
-    constructor(message) {
-        super(message);
-    }
-}
-
-class IllegalOperationError extends DomainError {
     constructor(message) {
         super(message);
     }

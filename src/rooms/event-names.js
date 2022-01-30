@@ -13,6 +13,13 @@ const eventNames = {
     USER_KICKED_FROM_ROOM_NOTIFICATION: "user kicked from room",
     ROOM_OWNER_CHANGED_NOTIFICATION: "room owner changed",
     ROOM_SETTINGS_UPDATED_NOTIFICATION: "room settings updated",
+
+    START_GAME_REQUEST: "start game",
+    GUESS_WORD_REQUEST: "guess word",
+
+    GAME_STARTED_NOTIFICATION: "game started",
+    DRAWING_USER_CHANGED_NOTIFICATION: "drawing user changed",
+    USER_TRIED_TO_GUESS_WORD_NOTIFICATION: "user tried to guess word",
 };
 
 export default eventNames;

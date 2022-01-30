@@ -1,4 +1,4 @@
-import DomainError from "../common/utils.js";
+import { DomainError } from "../common/utils.js";
 
 const DRAWING_TIME_LIMIT_IN_SECONDS = 60;
 
@@ -34,6 +34,13 @@ class DrawingScheduler {
         this.scheduleNextUser();
     }
 
+    stop() {
+        if (this.#timeoutID) {
+            clearTimeout(this.#timeoutID);
+        }
+        this.#isSchedulerRunning = false;
+    }
+
     addDrawingUserChangedListener(listener) {
         this.#drawingUserChangedListeners.push(listener);
     }
@@ -44,17 +51,19 @@ class DrawingScheduler {
             this.#timeoutID = null;
         }
 
+        const previouslyDrawingUser = this.currentlyDrawingUser;
         this.currentlyDrawingUser = this.#queueToDraw.shift();
         this.#queueToDraw.push(this.currentlyDrawingUser);
 
         this.#timeoutID = setTimeout(
-            () => this.#drawingTimeoutCallback(),
+            () => this.scheduleNextUser(),
             this.#drawingTimeLimitInSeconds * 1000
         );
-        this.drawingEndTime = new Date();
-        this.drawingEndTime.setSeconds(
-            this.drawingEndTime.getSeconds() + this.#drawingTimeLimitInSeconds
-        );
+        this.drawingEndTime = Date.now() + this.#drawingTimeLimitInSeconds * 1000;
+
+        this.#drawingUserChangedListeners.forEach((listener) => {
+            listener(previouslyDrawingUser, this.currentlyDrawingUser, this.drawingEndTime);
+        });
     }
 
     addUser(username) {
@@ -62,7 +71,7 @@ class DrawingScheduler {
     }
 
     removeUser(username) {
-        if (this.#isSchedulerRunning()) {
+        if (this.#isSchedulerRunning) {
             if (this.#queueToDraw.length == 1) {
                 if (this.#timeoutID) {
                     clearTimeout(this.#timeoutID);
@@ -74,18 +83,6 @@ class DrawingScheduler {
             }
         }
         this.#queueToDraw = this.#queueToDraw.filter((u) => u != username);
-    }
-
-    #drawingTimeoutCallback() {
-        const previouslyDrawingUser = this.currentlyDrawingUser;
-        this.scheduleNextUser();
-        this.#drawingUserChangedListeners.forEach((listener) =>
-            listener({
-                previouslyDrawingUser: previouslyDrawingUser,
-                currentlyDrawingUser: this.currentlyDrawingUser,
-                drawingEndTime: this.drawingEndTime,
-            })
-        );
     }
 }
 
