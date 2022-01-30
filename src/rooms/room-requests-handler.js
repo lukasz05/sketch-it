@@ -23,6 +23,9 @@ class RoomRequestsHandler {
             socket.on(eventNames.GET_ROOMS_REQUEST, (pageSize, pageIndex, callback) =>
                 this.#handleGetRoomsRequest(callback, pageSize, pageIndex)
             );
+            socket.on(eventNames.GET_ROOM_REQUEST, (roomName, callback) =>
+                this.#handleGetRoomRequest(callback, roomName)
+            );
             socket.on(
                 eventNames.CREATE_ROOM_REQUEST,
                 (username, roomName, roomSettings, callback) =>
@@ -62,6 +65,21 @@ class RoomRequestsHandler {
             callback({
                 success: true,
                 data: rooms,
+            });
+        } catch (err) {
+            callback({
+                success: false,
+                data: err,
+            });
+        }
+    }
+
+    #handleGetRoomRequest(callback, roomName) {
+        try {
+            const room = this.#roomService.getRoomByName(roomName);
+            callback({
+                success: true,
+                data: room,
             });
         } catch (err) {
             callback({

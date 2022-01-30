@@ -133,6 +133,24 @@ describe("RoomRequestsHandler", function () {
         });
     });
 
+    describe("GET_ROOM_REQUEST", function () {
+        it("should return room if it exists", function (done) {
+            roomService.createRoom("owner", "room", { prop: "value" });
+            const expectedRoom = roomService.getRoomByName("room");
+            clientSocket1.emit(eventNames.GET_ROOM_REQUEST, expectedRoom.name, function (response) {
+                assert.deepEqual(response, { success: true, data: expectedRoom });
+                done();
+            });
+        });
+
+        it("should return null if room does not exist", function (done) {
+            clientSocket1.emit(eventNames.GET_ROOM_REQUEST, "room", function (response) {
+                assert.deepEqual(response, { success: true, data: null });
+                done();
+            });
+        });
+    });
+
     describe("CREATE_ROOM_REQUEST", function () {
         it("should create a room and notify all clients except the sender", function (done) {
             const ownerName = "owner";

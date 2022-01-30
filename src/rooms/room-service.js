@@ -14,8 +14,8 @@ class RoomService {
     }
 
     getRoomByName(roomName) {
-        this.#assertRoomExists(roomName);
-        return this.#rooms[roomName];
+        const room = this.#rooms[roomName];
+        return room ? room : null;
     }
 
     getRooms(pageSize, pageIndex) {

@@ -1,5 +1,6 @@
 const eventNames = {
     GET_ROOMS_REQUEST: "get rooms",
+    GET_ROOM_REQUEST: "get room",
     CREATE_ROOM_REQUEST: "create room",
     JOIN_ROOM_REQUEST: "join room",
     LEAVE_ROOM_REQUEST: "leave room",
