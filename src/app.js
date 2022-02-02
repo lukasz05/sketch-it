@@ -7,7 +7,7 @@ import { Server } from "socket.io";
 import RoomService from "./rooms/room-service.js";
 import { fileURLToPath } from "url";
 import GameStateRequestsHandler from "./game-state/game-state-requests-handler.js";
-import WordProvider from "./word-provider.js";
+import WordProvider from "./game-state/word-provider.js";
 
 const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || "0.0.0.0";
@@ -41,7 +41,7 @@ const io = new Server(server);
 
 const socketToUserMap = {};
 const roomService = new RoomService();
-const wordProvider = new WordProvider(join(__dirname, "words.json"));
+const wordProvider = new WordProvider(join(__dirname, "./game-state/words.json"));
 // eslint-disable-next-line no-unused-vars
 const roomRequestsHandler = new RoomRequestsHandler(io, socketToUserMap, roomService);
 // eslint-disable-next-line no-unused-vars
