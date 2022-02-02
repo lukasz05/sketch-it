@@ -35,11 +35,11 @@ class RoomService {
         this.#rooms = rooms;
     }
 
-    createRoom(username, roomName, roomSettings) {
+    createRoom(roomName, roomSettings) {
         if (this.#doesRoomExist(roomName)) {
             throw new RoomAlreadyExistsError(`Room "${roomName}" already exists.`);
         }
-        const room = new Room(roomName, username, roomSettings);
+        const room = new Room(roomName, roomSettings);
         this.#rooms[roomName] = room;
         return room;
     }

@@ -26,19 +26,11 @@ class RoomRequestsHandler {
             socket.on(eventNames.GET_ROOM_REQUEST, (roomName, callback) =>
                 this.#handleGetRoomRequest(callback, roomName)
             );
-            socket.on(
-                eventNames.CREATE_ROOM_REQUEST,
-                (username, roomName, roomSettings, callback) =>
-                    this.#handleCreateRoomRequest(
-                        socket,
-                        callback,
-                        username,
-                        roomName,
-                        roomSettings
-                    )
+            socket.on(eventNames.CREATE_ROOM_REQUEST, (roomName, roomSettings, callback) =>
+                this.#handleCreateRoomRequest(socket, callback, roomName, roomSettings)
             );
-            socket.on(eventNames.JOIN_ROOM_REQUEST, (userName, roomName, callback) =>
-                this.#handleJoinRoomRequest(socket, callback, userName, roomName)
+            socket.on(eventNames.JOIN_ROOM_REQUEST, (username, roomName, callback) =>
+                this.#handleJoinRoomRequest(socket, callback, username, roomName)
             );
             socket.on(eventNames.LEAVE_ROOM_REQUEST, (callback) =>
                 this.#handleLeaveRoomRequest(socket, callback)
@@ -89,13 +81,11 @@ class RoomRequestsHandler {
         }
     }
 
-    #handleCreateRoomRequest(socket, callback, username, roomName, roomSettings) {
+    #handleCreateRoomRequest(socket, callback, roomName, roomSettings) {
         try {
             this.#assertSocketNotInRoom(socket);
 
-            const room = this.#roomService.createRoom(username, roomName, roomSettings);
-            this.#socketToUserMap[socket.id] = username;
-            socket.join(roomName);
+            const room = this.#roomService.createRoom(roomName, roomSettings);
 
             callback({ success: true });
 

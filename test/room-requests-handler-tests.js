@@ -135,7 +135,7 @@ describe("RoomRequestsHandler", function () {
 
     describe("GET_ROOM_REQUEST", function () {
         it("should return room if it exists", function (done) {
-            roomService.createRoom("owner", "room", { prop: "value" });
+            roomService.createRoom("room", { prop: "value" });
             const expectedRoom = roomService.getRoomByName("room");
             clientSocket1.emit(eventNames.GET_ROOM_REQUEST, expectedRoom.name, function (response) {
                 assert.deepEqual(response, { success: true, data: expectedRoom });
@@ -153,7 +153,6 @@ describe("RoomRequestsHandler", function () {
 
     describe("CREATE_ROOM_REQUEST", function () {
         it("should create a room and notify all clients except the sender", function (done) {
-            const ownerName = "owner";
             const roomName = "room";
             const roomSettings = {
                 prop1: "val1",
@@ -161,7 +160,6 @@ describe("RoomRequestsHandler", function () {
             };
             clientSocket1.emit(
                 eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
                 roomName,
                 roomSettings,
                 function (response) {
@@ -169,7 +167,7 @@ describe("RoomRequestsHandler", function () {
                         success: true,
                     });
 
-                    const expectedRoom = new Room(roomName, ownerName, roomSettings);
+                    const expectedRoom = new Room(roomName, roomSettings);
                     const actualRooms = roomService.getAllRooms();
                     assert.lengthOf(actualRooms, 1);
                     assert.strictEqual(actualRooms[0].name, expectedRoom.name);
@@ -190,44 +188,40 @@ describe("RoomRequestsHandler", function () {
         });
         it("should return RoomAlreadyExistsError when a room with the same name exists", function (done) {
             const roomName = "room";
-            roomService.createRoom("owner", roomName, {});
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                "owner",
-                roomName,
-                {},
-                function (response) {
-                    assert.deepEqual(response, {
-                        success: false,
-                        data: {
-                            name: "RoomAlreadyExistsError",
-                            message: `Room "${roomName}" already exists.`,
-                        },
-                    });
-
-                    done();
-                }
-            );
-        });
-        it("should return SocketAlreadyInRoomError when the client is already in some room", function (done) {
-            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, "owner", "room 1", {}, function () {
-                clientSocket1.emit(
-                    eventNames.CREATE_ROOM_REQUEST,
-                    "owner",
-                    "room 2",
-                    {},
-                    function (response) {
-                        assert.deepEqual(response, {
-                            success: false,
-                            data: {
-                                name: "SocketAlreadyInRoomError",
-                                message: `Socket ${clientSocket1.id} is already associated with user "owner" in room "room1".`,
-                            },
-                        });
-                    }
-                );
+            roomService.createRoom(roomName, {});
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function (response) {
+                assert.deepEqual(response, {
+                    success: false,
+                    data: {
+                        name: "RoomAlreadyExistsError",
+                        message: `Room "${roomName}" already exists.`,
+                    },
+                });
 
                 done();
+            });
+        });
+        it("should return SocketAlreadyInRoomError when the client is already in some room", function (done) {
+            const firstRoomName = "room 1";
+            const owner = "owner";
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, firstRoomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, owner, firstRoomName, function () {
+                    clientSocket1.emit(
+                        eventNames.CREATE_ROOM_REQUEST,
+                        "room 2",
+                        {},
+                        function (response) {
+                            assert.deepEqual(response, {
+                                success: false,
+                                data: {
+                                    name: "SocketAlreadyInRoomError",
+                                    message: `Socket ${clientSocket1.id} is already associated with user "${owner}" in room "${firstRoomName}".`,
+                                },
+                            });
+                            done();
+                        }
+                    );
+                });
             });
         });
     });
@@ -236,12 +230,8 @@ describe("RoomRequestsHandler", function () {
         it("should add the sender to the room, return the room in the callback and notify all clients in the room except the sender", function (done) {
             const roomName = "room";
             const ownerName = "owner";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     const memberName = "member";
                     clientSocket2.emit(
                         eventNames.JOIN_ROOM_REQUEST,
@@ -271,66 +261,70 @@ describe("RoomRequestsHandler", function () {
                             });
                         }
                     );
-                }
-            );
+                });
+            });
         });
         it("should return UserAlreadyInRoomError when there is a user with the same username in the room", function (done) {
             const roomName = "room";
             const username = "member";
-            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, username, roomName, {}, function () {
-                clientSocket2.emit(
-                    eventNames.JOIN_ROOM_REQUEST,
-                    username,
-                    roomName,
-                    function (response) {
-                        assert.deepEqual(response, {
-                            success: false,
-                            data: {
-                                name: "UserAlreadyInRoomError",
-                                message: `User "${username}" is already a member of the room "${roomName}".`,
-                            },
-                        });
-
-                        done();
-                    }
-                );
-            });
-        });
-        it("should return RoomAlreadyFullError when room is already full", function (done) {
-            const roomName = "room";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                "owner",
-                roomName,
-                { maxMembersCount: 1 },
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, username, roomName, function () {
                     clientSocket2.emit(
                         eventNames.JOIN_ROOM_REQUEST,
-                        "member",
+                        username,
                         roomName,
                         function (response) {
                             assert.deepEqual(response, {
                                 success: false,
                                 data: {
-                                    name: "RoomAlreadyFullError",
-                                    message: `Room "${roomName}" is already full.`,
+                                    name: "UserAlreadyInRoomError",
+                                    message: `User "${username}" is already a member of the room "${roomName}".`,
                                 },
                             });
 
                             done();
                         }
                     );
+                });
+            });
+        });
+        it("should return RoomAlreadyFullError when room is already full", function (done) {
+            const roomName = "room";
+            clientSocket1.emit(
+                eventNames.CREATE_ROOM_REQUEST,
+                roomName,
+                { maxMembersCount: 1 },
+                function () {
+                    clientSocket1.emit(
+                        eventNames.JOIN_ROOM_REQUEST,
+                        "owner",
+                        roomName,
+                        function () {
+                            clientSocket2.emit(
+                                eventNames.JOIN_ROOM_REQUEST,
+                                "member",
+                                roomName,
+                                function (response) {
+                                    assert.deepEqual(response, {
+                                        success: false,
+                                        data: {
+                                            name: "RoomAlreadyFullError",
+                                            message: `Room "${roomName}" is already full.`,
+                                        },
+                                    });
+
+                                    done();
+                                }
+                            );
+                        }
+                    );
                 }
             );
         });
         it("should return SocketAlreadyInRoomError when the client is already in some room", function (done) {
-            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, "owner", "room 1", {}, function () {
-                clientSocket2.emit(
-                    eventNames.CREATE_ROOM_REQUEST,
-                    "owner",
-                    "room 2",
-                    {},
-                    function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, "room 1", {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, "owner", "room 1", function () {
+                    clientSocket2.emit(eventNames.CREATE_ROOM_REQUEST, "room 2", {}, function () {
                         clientSocket1.emit(
                             eventNames.JOIN_ROOM_REQUEST,
                             "member",
@@ -347,8 +341,8 @@ describe("RoomRequestsHandler", function () {
                                 done();
                             }
                         );
-                    }
-                );
+                    });
+                });
             });
         });
     });
@@ -358,12 +352,8 @@ describe("RoomRequestsHandler", function () {
             const roomName = "room";
             const ownerName = "owner";
             const memberName = "member";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket2.emit(
                         eventNames.JOIN_ROOM_REQUEST,
                         memberName,
@@ -405,37 +395,29 @@ describe("RoomRequestsHandler", function () {
                             });
                         }
                     );
-                }
-            );
+                });
+            });
         });
         it("should remove the room when the sender is the last member", function (done) {
             const roomName = "room";
             const ownerName = "owner";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket1.emit(eventNames.LEAVE_ROOM_REQUEST, function (response) {
                         assert.deepEqual(response, { success: true });
                         assert.isEmpty(roomService.getAllRooms());
 
                         done();
                     });
-                }
-            );
+                });
+            });
         });
         it("should pick a new owner and notify all clients in the room when the sender is the owner", function (done) {
             const roomName = "room";
             const ownerName = "owner";
             const memberName = "member";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket2.emit(
                         eventNames.JOIN_ROOM_REQUEST,
                         memberName,
@@ -460,8 +442,8 @@ describe("RoomRequestsHandler", function () {
                             });
                         }
                     );
-                }
-            );
+                });
+            });
         });
         it("should return SocketNotInRoomError when the sender does not belong to any room", function (done) {
             clientSocket1.emit(eventNames.LEAVE_ROOM_REQUEST, function (response) {
@@ -482,12 +464,8 @@ describe("RoomRequestsHandler", function () {
             const ownerName = "owner";
             const kickedMemberName = "member 1";
             const otherMemberNAme = "member 2";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket2.emit(
                         eventNames.JOIN_ROOM_REQUEST,
                         kickedMemberName,
@@ -546,19 +524,15 @@ describe("RoomRequestsHandler", function () {
                             );
                         }
                     );
-                }
-            );
+                });
+            });
         });
         it("should return UserNotPermittedError when the sender is not an owner", function (done) {
             const roomName = "room";
             const ownerName = "owner";
             const memberName = "member";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket2.emit(
                         eventNames.JOIN_ROOM_REQUEST,
                         memberName,
@@ -580,37 +554,35 @@ describe("RoomRequestsHandler", function () {
                             );
                         }
                     );
-                }
-            );
+                });
+            });
         });
         it("should return UserNotInRoomError when the target is not in the room", function (done) {
             const roomName = "room";
-            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, "owner", roomName, {}, function () {
-                clientSocket1.emit(
-                    eventNames.KICK_USER_FROM_ROOM_REQUEST,
-                    "member",
-                    function (response) {
-                        assert.deepEqual(response, {
-                            success: false,
-                            data: {
-                                name: "UserNotInRoomError",
-                                message: `User "member" is not a member of the room "${roomName}".`,
-                            },
-                        });
-                        done();
-                    }
-                );
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, "owner", roomName, function () {
+                    clientSocket1.emit(
+                        eventNames.KICK_USER_FROM_ROOM_REQUEST,
+                        "member",
+                        function (response) {
+                            assert.deepEqual(response, {
+                                success: false,
+                                data: {
+                                    name: "UserNotInRoomError",
+                                    message: `User "member" is not a member of the room "${roomName}".`,
+                                },
+                            });
+                            done();
+                        }
+                    );
+                });
             });
         });
         it("should return IllegalOperationError when the sender and the target are equal", function (done) {
             const roomName = "room";
             const ownerName = "owner";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket1.emit(
                         eventNames.KICK_USER_FROM_ROOM_REQUEST,
                         ownerName,
@@ -625,8 +597,8 @@ describe("RoomRequestsHandler", function () {
                             done();
                         }
                     );
-                }
-            );
+                });
+            });
         });
         it("should return SocketNotInRoomError when the sender does not belong to any room", function (done) {
             clientSocket1.emit(
@@ -651,12 +623,8 @@ describe("RoomRequestsHandler", function () {
             const roomName = "room";
             const ownerName = "owner";
             const memberName = "member";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket2.emit(
                         eventNames.JOIN_ROOM_REQUEST,
                         memberName,
@@ -701,19 +669,15 @@ describe("RoomRequestsHandler", function () {
                             );
                         }
                     );
-                }
-            );
+                });
+            });
         });
         it("should return UserNotPermittedError when the sender is not an owner", function (done) {
             const roomName = "room";
             const ownerName = "owner";
             const memberName = "member";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket2.emit(
                         eventNames.JOIN_ROOM_REQUEST,
                         memberName,
@@ -735,26 +699,28 @@ describe("RoomRequestsHandler", function () {
                             );
                         }
                     );
-                }
-            );
+                });
+            });
         });
         it("should return UserNotInRoomError when the new owner is not in the room", function (done) {
             const roomName = "room";
-            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, "owner", roomName, {}, function () {
-                clientSocket1.emit(
-                    eventNames.CHANGE_ROOM_OWNER_REQUEST,
-                    "member",
-                    function (response) {
-                        assert.deepEqual(response, {
-                            success: false,
-                            data: {
-                                name: "UserNotInRoomError",
-                                message: `User "member" is not a member of the room "${roomName}".`,
-                            },
-                        });
-                        done();
-                    }
-                );
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, "owner", roomName, function () {
+                    clientSocket1.emit(
+                        eventNames.CHANGE_ROOM_OWNER_REQUEST,
+                        "member",
+                        function (response) {
+                            assert.deepEqual(response, {
+                                success: false,
+                                data: {
+                                    name: "UserNotInRoomError",
+                                    message: `User "member" is not a member of the room "${roomName}".`,
+                                },
+                            });
+                            done();
+                        }
+                    );
+                });
             });
         });
         it("should return SocketNotInRoomError when the sender does not belong to any room", function (done) {
@@ -778,52 +744,62 @@ describe("RoomRequestsHandler", function () {
             const memberName = "member";
             clientSocket1.emit(
                 eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
                 roomName,
                 { prop1: "val1", prop2: "val2" },
                 function () {
-                    clientSocket2.emit(
+                    clientSocket1.emit(
                         eventNames.JOIN_ROOM_REQUEST,
-                        memberName,
+                        ownerName,
                         roomName,
                         function () {
-                            const updatedSettings = {
-                                prop1: "val1 modified",
-                                prop2: "val2 modified",
-                                prop3: "val3",
-                            };
-                            clientSocket1.emit(
-                                eventNames.UPDATE_ROOM_SETTINGS_REQUEST,
-                                updatedSettings,
-                                function (response) {
-                                    assert.deepEqual(response, {
-                                        success: true,
-                                    });
+                            clientSocket2.emit(
+                                eventNames.JOIN_ROOM_REQUEST,
+                                memberName,
+                                roomName,
+                                function () {
+                                    const updatedSettings = {
+                                        prop1: "val1 modified",
+                                        prop2: "val2 modified",
+                                        prop3: "val3",
+                                    };
+                                    clientSocket1.emit(
+                                        eventNames.UPDATE_ROOM_SETTINGS_REQUEST,
+                                        updatedSettings,
+                                        function (response) {
+                                            assert.deepEqual(response, {
+                                                success: true,
+                                            });
 
-                                    const actualSettings =
-                                        roomService.getRoomByName(roomName).settings;
-                                    assert.deepEqual(actualSettings, updatedSettings);
+                                            const actualSettings =
+                                                roomService.getRoomByName(roomName).settings;
+                                            assert.deepEqual(actualSettings, updatedSettings);
 
-                                    clientSocket2.on(
-                                        eventNames.ROOM_SETTINGS_UPDATED_NOTIFICATION,
-                                        function (settings) {
-                                            assert.deepEqual(settings, actualSettings);
-                                            done();
-                                        }
-                                    );
-                                    clientSocket1.on(
-                                        eventNames.ROOM_SETTINGS_UPDATED_NOTIFICATION,
-                                        function () {
-                                            done(Error("The sender received the notification"));
-                                        }
-                                    );
-                                    clientSocket3.on(
-                                        eventNames.ROOM_SETTINGS_UPDATED_NOTIFICATION,
-                                        function () {
-                                            done(
-                                                Error(
-                                                    "Client outside the room received the notification"
-                                                )
+                                            clientSocket2.on(
+                                                eventNames.ROOM_SETTINGS_UPDATED_NOTIFICATION,
+                                                function (settings) {
+                                                    assert.deepEqual(settings, actualSettings);
+                                                    done();
+                                                }
+                                            );
+                                            clientSocket1.on(
+                                                eventNames.ROOM_SETTINGS_UPDATED_NOTIFICATION,
+                                                function () {
+                                                    done(
+                                                        Error(
+                                                            "The sender received the notification"
+                                                        )
+                                                    );
+                                                }
+                                            );
+                                            clientSocket3.on(
+                                                eventNames.ROOM_SETTINGS_UPDATED_NOTIFICATION,
+                                                function () {
+                                                    done(
+                                                        Error(
+                                                            "Client outside the room received the notification"
+                                                        )
+                                                    );
+                                                }
                                             );
                                         }
                                     );
@@ -838,12 +814,8 @@ describe("RoomRequestsHandler", function () {
             const roomName = "room";
             const ownerName = "owner";
             const memberName = "member";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket2.emit(
                         eventNames.JOIN_ROOM_REQUEST,
                         memberName,
@@ -865,8 +837,8 @@ describe("RoomRequestsHandler", function () {
                             );
                         }
                     );
-                }
-            );
+                });
+            });
         });
         it("should return SocketNotInRoomError when the sender does not belong to any room", function (done) {
             clientSocket1.emit(eventNames.UPDATE_ROOM_SETTINGS_REQUEST, {}, function (response) {
@@ -887,12 +859,8 @@ describe("RoomRequestsHandler", function () {
             const roomName = "room";
             const ownerName = "owner";
             const memberName = "member";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket2.emit(
                         eventNames.JOIN_ROOM_REQUEST,
                         memberName,
@@ -916,37 +884,29 @@ describe("RoomRequestsHandler", function () {
                             });
                         }
                     );
-                }
-            );
+                });
+            });
         });
         it("should remove the room when the disconnected client is the last member", function (done) {
             const roomName = "room";
             const ownerName = "owner";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket1.close();
                     setTimeout(function () {
                         assert.isEmpty(roomService.getAllRooms());
 
                         done();
                     }, 50);
-                }
-            );
+                });
+            });
         });
         it("should pick a new owner and notify all clients in the room when the disconnected client is the owner", function (done) {
             const roomName = "room";
             const ownerName = "owner";
             const memberName = "member";
-            clientSocket1.emit(
-                eventNames.CREATE_ROOM_REQUEST,
-                ownerName,
-                roomName,
-                {},
-                function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket2.emit(
                         eventNames.JOIN_ROOM_REQUEST,
                         memberName,
@@ -974,8 +934,8 @@ describe("RoomRequestsHandler", function () {
                             );
                         }
                     );
-                }
-            );
+                });
+            });
         });
     });
 });
