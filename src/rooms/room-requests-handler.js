@@ -4,6 +4,7 @@ import {
     SocketNotInRoomError,
     UserNotPermittedError,
     IllegalOperationError,
+    RoomNotFoundError,
 } from "../common/utils.js";
 
 class RoomRequestsHandler {
@@ -100,6 +101,10 @@ class RoomRequestsHandler {
             this.#assertSocketNotInRoom(socket);
 
             const room = this.#roomService.getRoomByName(roomName);
+            if (!room) {
+                throw new RoomNotFoundError(`Room "${roomName}" not found.`);
+            }
+
             room.addMember(username);
             this.#socketToUserMap[socket.id] = username;
             socket.join(roomName);

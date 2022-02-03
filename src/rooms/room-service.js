@@ -1,5 +1,5 @@
 import { Room } from "./room.js";
-import { DomainError } from "../common/utils.js";
+import { DomainError, RoomNotFoundError } from "../common/utils.js";
 
 class RoomService {
     #rooms;
@@ -62,12 +62,6 @@ class RoomService {
 }
 
 class RoomAlreadyExistsError extends DomainError {
-    constructor(message) {
-        super(message);
-    }
-}
-
-class RoomNotFoundError extends DomainError {
     constructor(message) {
         super(message);
     }
