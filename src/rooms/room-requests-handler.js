@@ -1,15 +1,19 @@
-const eventNames = require("./event-names");
-const DomainError = require("../utils");
+import eventNames from "./event-names.js";
+import {
+    DomainError,
+    SocketNotInRoomError,
+    UserNotPermittedError,
+    IllegalOperationError,
+} from "../common/utils.js";
 
 class RoomRequestsHandler {
     #io;
     #roomService;
     #socketToUserMap;
-    constructor(io, roomService) {
+    constructor(io, socketToUserMap, roomService) {
         this.#io = io;
+        this.#socketToUserMap = socketToUserMap;
         this.#roomService = roomService;
-
-        this.#socketToUserMap = {};
 
         this.#initializeEventListeners();
     }
@@ -18,6 +22,9 @@ class RoomRequestsHandler {
         this.#io.on("connection", (socket) => {
             socket.on(eventNames.GET_ROOMS_REQUEST, (pageSize, pageIndex, callback) =>
                 this.#handleGetRoomsRequest(callback, pageSize, pageIndex)
+            );
+            socket.on(eventNames.GET_ROOM_REQUEST, (roomName, callback) =>
+                this.#handleGetRoomRequest(callback, roomName)
             );
             socket.on(
                 eventNames.CREATE_ROOM_REQUEST,
@@ -67,6 +74,21 @@ class RoomRequestsHandler {
         }
     }
 
+    #handleGetRoomRequest(callback, roomName) {
+        try {
+            const room = this.#roomService.getRoomByName(roomName);
+            callback({
+                success: true,
+                data: room,
+            });
+        } catch (err) {
+            callback({
+                success: false,
+                data: err,
+            });
+        }
+    }
+
     #handleCreateRoomRequest(socket, callback, username, roomName, roomSettings) {
         try {
             this.#assertSocketNotInRoom(socket);
@@ -103,12 +125,11 @@ class RoomRequestsHandler {
     #handleLeaveRoomRequest(socket, callback) {
         try {
             this.#assertSocketInRoom(socket);
-
             const room = this.#getRoomBySocket(socket);
             const username = this.#socketToUserMap[socket.id];
             const ownerChanged = username == room.owner;
             room.removeMember(username);
-            if (room.members.length == 0) {
+            if (room.getMemberNames().length == 0) {
                 this.#roomService.removeRoom(room.name);
             }
             delete this.#socketToUserMap[socket.id];
@@ -236,22 +257,4 @@ class SocketAlreadyInRoomError extends DomainError {
     }
 }
 
-class SocketNotInRoomError extends DomainError {
-    constructor(message) {
-        super(message);
-    }
-}
-
-class UserNotPermittedError extends DomainError {
-    constructor(message) {
-        super(message);
-    }
-}
-
-class IllegalOperationError extends DomainError {
-    constructor(message) {
-        super(message);
-    }
-}
-
-module.exports = RoomRequestsHandler;
+export default RoomRequestsHandler;

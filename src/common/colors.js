@@ -1,4 +1,4 @@
-import DomainError from "../utils";
+import { DomainError } from "./utils.js";
 
 class PColor {
     /* html class name */
@@ -74,4 +74,4 @@ const paletteGrey = new Palette(
     "greyscale colors"
 );
 
-export { PColor, paletteColor, paletteGrey };
+export { Palette, PColor, paletteColor, paletteGrey };

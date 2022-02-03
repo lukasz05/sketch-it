@@ -1,4 +1,4 @@
-import { Pencil } from "./drawing";
+import { Pencil } from "./drawing.js";
 /* Basic user data definition */
 
 class UserData {
@@ -10,7 +10,7 @@ class UserData {
 
     constructor(userID, color, canDraw, score) {
         this.userID = userID;
-        this.color = color.hex;
+        this.color = color;
         this.canDraw = canDraw;
         this.score = score;
         this.currentTool = new Pencil();

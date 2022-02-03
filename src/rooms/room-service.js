@@ -1,15 +1,21 @@
-const Room = require("./room");
-const DomainError = require("../utils");
+import { Room } from "./room.js";
+import { DomainError } from "../common/utils.js";
 
 class RoomService {
     #rooms;
+    #removeRoomListeners;
     constructor(initialRooms = {}) {
         this.#rooms = initialRooms;
+        this.#removeRoomListeners = [];
+    }
+
+    addRemoveRoomListener(listener) {
+        this.#removeRoomListeners.push(listener);
     }
 
     getRoomByName(roomName) {
-        this.#assertRoomExists(roomName);
-        return this.#rooms[roomName];
+        const room = this.#rooms[roomName];
+        return room ? room : null;
     }
 
     getRooms(pageSize, pageIndex) {
@@ -33,17 +39,14 @@ class RoomService {
         if (this.#doesRoomExist(roomName)) {
             throw new RoomAlreadyExistsError(`Room "${roomName}" already exists.`);
         }
-        const room = new Room({
-            name: roomName,
-            owner: username,
-            settings: roomSettings,
-        });
+        const room = new Room(roomName, username, roomSettings);
         this.#rooms[roomName] = room;
         return room;
     }
 
     removeRoom(roomName) {
         this.#assertRoomExists(roomName);
+        this.#removeRoomListeners.forEach((listener) => listener(roomName));
         delete this.#rooms[roomName];
     }
 
@@ -70,4 +73,4 @@ class RoomNotFoundError extends DomainError {
     }
 }
 
-module.exports = RoomService;
+export default RoomService;

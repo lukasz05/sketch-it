@@ -1,26 +1,77 @@
-const DomainError = require("../utils");
+import { Palette, paletteColor } from "../common/colors.js";
+import { UserData } from "../common/user.js";
+import { DomainError } from "../common/utils.js";
+
+const MAX_ROOM_MEMBERS_COUNT = 9;
+const POINTS_FOR_SUCCESSFUL_GUESS = 100;
 
 class Room {
     name;
     owner;
-    score;
+    members;
     createdAt;
-
     settings;
+    currentlyDrawingUser;
+    hasGameStarted;
+    drawingEndTime;
 
-    constructor({ name, owner, settings }) {
+    #drawingScheduler;
+    #unusedColorsPalette;
+
+    #maxMembersCount;
+    #pointsForSuccessfulGuess;
+
+    constructor(name, owner, settings) {
         this.name = name;
         this.owner = owner;
         this.settings = settings;
 
-        this.score = {};
+        this.#maxMembersCount = settings.maxMembersCount
+            ? settings.maxMembersCount
+            : MAX_ROOM_MEMBERS_COUNT;
+
+        this.#pointsForSuccessfulGuess = settings.pointsForSuccessfulGuess
+            ? settings.pointsForSuccessfulGuess
+            : POINTS_FOR_SUCCESSFUL_GUESS;
+
+        this.members = {};
         this.createdAt = Date.now();
+        this.currentlyDrawingUser = null;
+        this.drawingEndTime = null;
+        this.hasGameStarted = false;
+
+        this.#unusedColorsPalette = new Palette(paletteColor.cloneColorsArray());
 
         this.addMember(owner);
     }
 
-    get members() {
-        return Object.keys(this.score);
+    setDrawingScheduler(drawingScheduler) {
+        this.#drawingScheduler = drawingScheduler;
+        this.#drawingScheduler.addDrawingUserChangedListener(
+            (previouslyDrawingUser, currentlyDrawingUser, drawingEndTime) => {
+                if (previouslyDrawingUser) {
+                    const user = this.members[previouslyDrawingUser];
+                    if (user) {
+                        this.members[previouslyDrawingUser].canDraw = false;
+                    }
+                }
+                this.members[currentlyDrawingUser].canDraw = true;
+                this.currentlyDrawingUser = currentlyDrawingUser;
+                this.drawingEndTime = drawingEndTime;
+            }
+        );
+    }
+
+    setGuessingService(guessingService) {
+        guessingService.addGuessListener((username, word, success) => {
+            if (success) {
+                this.members[username].score += this.#pointsForSuccessfulGuess;
+            }
+        });
+    }
+
+    getMemberNames() {
+        return Object.keys(this.members);
     }
 
     addMember(username) {
@@ -29,15 +80,25 @@ class Room {
                 `User "${username}" is already a member of the room "${this.name}".`
             );
         }
-        this.score[username] = 0;
+        if (this.getMemberNames().length == this.#maxMembersCount) {
+            throw new RoomAlreadyFullError(`Room "${this.name}" is already full.`);
+        }
+        this.members[username] = new UserData(username, this.#pickColorForUser(), false, 0);
+        if (this.#drawingScheduler) {
+            this.#drawingScheduler.addUser(username);
+        }
     }
 
     removeMember(username) {
         this.#assertUserInRoom(username);
+        this.#unusedColorsPalette.colors.push(this.members[username].color);
+        delete this.members[username];
         if (username == this.owner) {
             this.#chooseNewRandomOwner();
         }
-        delete this.score[username];
+        if (this.#drawingScheduler) {
+            this.#drawingScheduler.removeUser(username);
+        }
     }
 
     setOwner(newOwner) {
@@ -46,13 +107,20 @@ class Room {
     }
 
     #chooseNewRandomOwner() {
-        delete this.score[this.owner];
-        const newOwnerIndex = Math.floor(Math.random() * this.members.length);
-        this.owner = this.members[newOwnerIndex];
+        const newOwnerIndex = Math.floor(Math.random() * this.getMemberNames().length);
+        this.owner = this.getMemberNames()[newOwnerIndex];
     }
 
     #isUserInRoom(username) {
-        return this.members.includes(username);
+        return Object.keys(this.members).includes(username);
+    }
+
+    #pickColorForUser() {
+        const color = this.#unusedColorsPalette.getRandomColor();
+        this.#unusedColorsPalette.colors = this.#unusedColorsPalette.colors.filter(
+            (c) => c.hex != color.hex
+        );
+        return color;
     }
 
     #assertUserInRoom(username) {
@@ -76,4 +144,10 @@ class UserNotInRoomError extends DomainError {
     }
 }
 
-module.exports = Room;
+class RoomAlreadyFullError extends DomainError {
+    constructor(message) {
+        super(message);
+    }
+}
+
+export { Room, MAX_ROOM_MEMBERS_COUNT };

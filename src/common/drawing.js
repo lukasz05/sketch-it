@@ -1,4 +1,4 @@
-import { paletteGrey, paletteColor } from "./colors";
+import { paletteGrey, paletteColor } from "./colors.js";
 
 class DrawingTool {
     color;
