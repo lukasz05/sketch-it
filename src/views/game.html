@@ -1,17 +1,56 @@
 <html>
     <head>
         <title>Sketch-it</title>
-        <base target="_top">
-        <link rel="stylesheet" href="/css/style.css">
+        <base target="_top" />
+        <link rel="stylesheet" href="/css/style.css" />
         <script src="http://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.6/p5.js"></script>
         <script src="/js/dist/game.js"></script>
     </head>
     <body>
+        <div id="modal-error" class="modal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+                <div class="modal-card">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title">Error</p>
+                    </header>
+                    <section id="modal-error-content" class="modal-card-body"></section>
+                </div>
+            </div>
+        </div>
+        <div id="modal-set-user-name" class="modal">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+                <div class="modal-card">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title">Set player name</p>
+                    </header>
+                    <section class="modal-card-body">
+                        <div
+                            id="set-user-name-error-notification"
+                            class="notification is-danger"
+                        ></div>
+                        <form id="set-user-name-form">
+                            <label for="user-name">Player name:</label><br />
+                            <input
+                                class="input"
+                                type="text"
+                                id="set-user-name"
+                                name="set-user-name"
+                                placeholder="Player name"
+                                value=""
+                            /><br />
+                        </form>
+                    </section>
+                    <footer class="modal-card-foot">
+                        <button id="send-set-user-name-form" class="button is-success">Join</button>
+                    </footer>
+                </div>
+            </div>
+        </div>
         <button class="button">Pencil</button>
         <button class="button">Highlighter</button>
         <button class="button">Eraser</button>
-        <div id="game-canvas">
-        </div>
+        <div id="game-canvas"></div>
     </body>
 </html>
-

@@ -51,20 +51,16 @@ describe("GameStateRequestsHandler", function () {
     });
 
     function prepareRoomWithTwoMembers(roomName, memberNames, callback) {
-        clientSocket1.emit(
-            eventNames.CREATE_ROOM_REQUEST,
-            memberNames[0],
-            roomName,
-            {},
-            function () {
+        clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
+            clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, memberNames[0], roomName, function () {
                 clientSocket2.emit(
                     eventNames.JOIN_ROOM_REQUEST,
                     memberNames[1],
                     roomName,
                     callback
                 );
-            }
-        );
+            });
+        });
     }
 
     function prepareRoomWithThreeMembers(roomName, memberNames, callback) {

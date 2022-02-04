@@ -1,5 +1,5 @@
 import { Room } from "./room.js";
-import { DomainError } from "../common/utils.js";
+import { DomainError, RoomNotFoundError } from "../common/utils.js";
 
 class RoomService {
     #rooms;
@@ -35,11 +35,11 @@ class RoomService {
         this.#rooms = rooms;
     }
 
-    createRoom(username, roomName, roomSettings) {
+    createRoom(roomName, roomSettings) {
         if (this.#doesRoomExist(roomName)) {
             throw new RoomAlreadyExistsError(`Room "${roomName}" already exists.`);
         }
-        const room = new Room(roomName, username, roomSettings);
+        const room = new Room(roomName, roomSettings);
         this.#rooms[roomName] = room;
         return room;
     }
@@ -62,12 +62,6 @@ class RoomService {
 }
 
 class RoomAlreadyExistsError extends DomainError {
-    constructor(message) {
-        super(message);
-    }
-}
-
-class RoomNotFoundError extends DomainError {
     constructor(message) {
         super(message);
     }

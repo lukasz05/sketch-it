@@ -21,9 +21,8 @@ class Room {
     #maxMembersCount;
     #pointsForSuccessfulGuess;
 
-    constructor(name, owner, settings) {
+    constructor(name, settings) {
         this.name = name;
-        this.owner = owner;
         this.settings = settings;
 
         this.#maxMembersCount = settings.maxMembersCount
@@ -34,6 +33,7 @@ class Room {
             ? settings.pointsForSuccessfulGuess
             : POINTS_FOR_SUCCESSFUL_GUESS;
 
+        this.owner = null;
         this.members = {};
         this.createdAt = Date.now();
         this.currentlyDrawingUser = null;
@@ -41,8 +41,6 @@ class Room {
         this.hasGameStarted = false;
 
         this.#unusedColorsPalette = new Palette(paletteColor.cloneColorsArray());
-
-        this.addMember(owner);
     }
 
     setDrawingScheduler(drawingScheduler) {
@@ -86,6 +84,9 @@ class Room {
         this.members[username] = new UserData(username, this.#pickColorForUser(), false, 0);
         if (this.#drawingScheduler) {
             this.#drawingScheduler.addUser(username);
+        }
+        if (!this.owner) {
+            this.owner = username;
         }
     }
 

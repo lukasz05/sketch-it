@@ -30,4 +30,16 @@ class SocketNotInRoomError extends DomainError {
     }
 }
 
-export { DomainError, UserNotPermittedError, IllegalOperationError, SocketNotInRoomError };
+class RoomNotFoundError extends DomainError {
+    constructor(message) {
+        super(message);
+    }
+}
+
+export {
+    DomainError,
+    UserNotPermittedError,
+    IllegalOperationError,
+    SocketNotInRoomError,
+    RoomNotFoundError,
+};
