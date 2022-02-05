@@ -2,6 +2,12 @@ import eventNames from "../rooms/event-names.js";
 import { DomainError, SocketNotInRoomError, UserNotPermittedError } from "../common/utils.js";
 import { DrawingScheduler } from "./drawing-scheduler.js";
 import GuessingService from "./guessing-service.js";
+import {
+    drawingCoordsSchema,
+    drawingStartNewShapeSchema,
+    guessWordRequestSchema,
+    startGameRequestSchema,
+} from "./request-schemas.js";
 
 class GameStateRequestsHandler {
     #io;
@@ -48,6 +54,13 @@ class GameStateRequestsHandler {
     }
 
     #handleStartGameRequest(socket, callback) {
+        const { error: err } = startGameRequestSchema.validate({
+            callback,
+        });
+        if (err) {
+            callback({ success: false, data: err });
+            return;
+        }
         try {
             this.#assertSocketInRoom(socket);
             const username = this.#socketToUserMap[socket.id];
@@ -102,6 +115,14 @@ class GameStateRequestsHandler {
     }
 
     #handleGuessWordRequest(socket, callback, word) {
+        const { error: err } = guessWordRequestSchema.validate({
+            word,
+            callback,
+        });
+        if (err) {
+            callback({ success: false, data: err });
+            return;
+        }
         try {
             this.#assertSocketInRoom(socket);
             const username = this.#socketToUserMap[socket.id];
@@ -127,6 +148,15 @@ class GameStateRequestsHandler {
     }
 
     #handleDrawingStartRequest(socket, callback, coordPack, drawingTool) {
+        const { error: err } = drawingStartNewShapeSchema.validate({
+            coordPack,
+            drawingTool,
+            callback,
+        });
+        if (err) {
+            callback({ success: false, data: err });
+            return;
+        }
         try {
             this.#assertSocketInRoom(socket);
             const username = this.#socketToUserMap[socket.id];
@@ -148,6 +178,14 @@ class GameStateRequestsHandler {
     }
 
     #handleDrawingCoordsRequest(socket, callback, coordPack) {
+        const { error: err } = drawingCoordsSchema.validate({
+            coordPack,
+            callback,
+        });
+        if (err) {
+            callback({ success: false, data: err });
+            return;
+        }
         try {
             this.#assertSocketInRoom(socket);
             const username = this.#socketToUserMap[socket.id];

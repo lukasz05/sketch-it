@@ -6,6 +6,16 @@ import {
     IllegalOperationError,
     RoomNotFoundError,
 } from "../common/utils.js";
+import {
+    getRoomsRequestSchema,
+    getRoomRequestSchema,
+    createRoomRequestSchema,
+    joinRoomRequestSchema,
+    leaveRoomRequestSchema,
+    kickUserFromRoomRequestSchema,
+    changeRoomOwnerRequestSchema,
+    updateRoomSettingsRequestSchema,
+} from "./requests-schemas.js";
 
 class RoomRequestsHandler {
     #io;
@@ -53,6 +63,11 @@ class RoomRequestsHandler {
     }
 
     #handleGetRoomsRequest(callback, pageSize, pageIndex) {
+        const { error: err } = getRoomsRequestSchema.validate({ callback, pageSize, pageIndex });
+        if (err) {
+            callback({ success: false, data: err.details[0].message });
+            return;
+        }
         try {
             const rooms = this.#roomService.getRooms(pageSize, pageIndex);
             callback({
@@ -68,6 +83,14 @@ class RoomRequestsHandler {
     }
 
     #handleGetRoomRequest(callback, roomName) {
+        const { error: err } = getRoomRequestSchema.validate({
+            callback,
+            roomName,
+        });
+        if (err) {
+            callback({ success: false, data: err });
+            return;
+        }
         try {
             const room = this.#roomService.getRoomByName(roomName);
             callback({
@@ -83,6 +106,15 @@ class RoomRequestsHandler {
     }
 
     #handleCreateRoomRequest(socket, callback, roomName, roomSettings) {
+        const { error: err } = createRoomRequestSchema.validate({
+            callback,
+            roomName,
+            roomSettings,
+        });
+        if (err) {
+            callback({ success: false, data: err });
+            return;
+        }
         try {
             this.#assertSocketNotInRoom(socket);
 
@@ -97,6 +129,15 @@ class RoomRequestsHandler {
     }
 
     #handleJoinRoomRequest(socket, callback, username, roomName) {
+        const { error: err } = joinRoomRequestSchema.validate({
+            callback,
+            username,
+            roomName,
+        });
+        if (err) {
+            callback({ success: false, data: err });
+            return;
+        }
         try {
             this.#assertSocketNotInRoom(socket);
 
@@ -120,6 +161,13 @@ class RoomRequestsHandler {
     }
 
     #handleLeaveRoomRequest(socket, callback) {
+        const { error: err } = leaveRoomRequestSchema.validate({
+            callback,
+        });
+        if (err) {
+            callback({ success: false, data: err.details[0].message });
+            return;
+        }
         try {
             this.#assertSocketInRoom(socket);
             const room = this.#getRoomBySocket(socket);
@@ -144,6 +192,14 @@ class RoomRequestsHandler {
     }
 
     #handleKickUserFromRoomRequest(socket, callback, targetUsername) {
+        const { error: err } = kickUserFromRoomRequestSchema.validate({
+            callback,
+            targetUsername,
+        });
+        if (err) {
+            callback({ success: false, data: err.details[0].message });
+            return;
+        }
         try {
             this.#assertSocketInRoom(socket);
 
@@ -179,6 +235,14 @@ class RoomRequestsHandler {
     }
 
     #handleChangeRoomOwner(socket, callback, newOwnerUsername) {
+        const { error: err } = changeRoomOwnerRequestSchema.validate({
+            callback,
+            newOwnerUsername,
+        });
+        if (err) {
+            callback({ success: false, data: err.details[0].message });
+            return;
+        }
         try {
             this.#assertSocketInRoom(socket);
 
@@ -197,6 +261,14 @@ class RoomRequestsHandler {
     }
 
     #handleUpdateRoomSettings(socket, callback, roomSettings) {
+        const { error: err } = updateRoomSettingsRequestSchema.validate({
+            callback,
+            roomSettings,
+        });
+        if (err) {
+            callback({ success: false, data: err.details[0].message });
+            return;
+        }
         try {
             this.#assertSocketInRoom(socket);
 

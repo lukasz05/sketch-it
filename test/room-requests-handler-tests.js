@@ -202,13 +202,13 @@ describe("RoomRequestsHandler", function () {
             });
         });
         it("should return SocketAlreadyInRoomError when the client is already in some room", function (done) {
-            const firstRoomName = "room 1";
+            const firstRoomName = "room1";
             const owner = "owner";
             clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, firstRoomName, {}, function () {
                 clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, owner, firstRoomName, function () {
                     clientSocket1.emit(
                         eventNames.CREATE_ROOM_REQUEST,
-                        "room 2",
+                        "room2",
                         {},
                         function (response) {
                             assert.deepEqual(response, {
@@ -322,19 +322,19 @@ describe("RoomRequestsHandler", function () {
             );
         });
         it("should return SocketAlreadyInRoomError when the client is already in some room", function (done) {
-            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, "room 1", {}, function () {
-                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, "owner", "room 1", function () {
-                    clientSocket2.emit(eventNames.CREATE_ROOM_REQUEST, "room 2", {}, function () {
+            clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, "room1", {}, function () {
+                clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, "owner", "room1", function () {
+                    clientSocket2.emit(eventNames.CREATE_ROOM_REQUEST, "room2", {}, function () {
                         clientSocket1.emit(
                             eventNames.JOIN_ROOM_REQUEST,
                             "member",
-                            "room 2",
+                            "room2",
                             function (response) {
                                 assert.deepEqual(response, {
                                     success: false,
                                     data: {
                                         name: "SocketAlreadyInRoomError",
-                                        message: `Socket ${clientSocket1.id} is already associated with user "owner" in room "room 1".`,
+                                        message: `Socket ${clientSocket1.id} is already associated with user "owner" in room "room1".`,
                                     },
                                 });
 
@@ -462,8 +462,8 @@ describe("RoomRequestsHandler", function () {
         it("should remove the user from the room and notify all clients in the room except the sender", function (done) {
             const roomName = "room";
             const ownerName = "owner";
-            const kickedMemberName = "member 1";
-            const otherMemberNAme = "member 2";
+            const kickedMemberName = "member1";
+            const otherMemberNAme = "member2";
             clientSocket1.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, function () {
                 clientSocket1.emit(eventNames.JOIN_ROOM_REQUEST, ownerName, roomName, function () {
                     clientSocket2.emit(

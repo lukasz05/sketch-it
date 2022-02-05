@@ -2,6 +2,7 @@ import { io } from "socket.io-client";
 import { createRoomCard } from "../../common/room-card.js";
 import eventNames from "../../rooms/event-names.js";
 import { activateElement, deActivateElement, showElement, hideElement } from "./helpers.js";
+import Joi from "joi";
 
 const refreshRoomsIntervalInMilliseconds = 3000;
 const roomsPerPage = 10;
@@ -80,6 +81,16 @@ window.addEventListener("load", function () {
     sendRoomCreation.addEventListener("click", () => {
         const roomName = document.getElementById("create-room-name").value;
         const username = document.getElementById("create-user-name").value;
+
+        const usernameSchema = Joi.string().alphanum().min(3).max(10);
+        const { error: err } = usernameSchema.validate(username);
+        if (err) {
+            createRoomErrorNotification.innerText =
+                "Player name must be between 3 and 10 alphanumeric characters.";
+            showElement(createRoomErrorNotification);
+            return;
+        }
+
         socket.emit(eventNames.CREATE_ROOM_REQUEST, roomName, {}, (response) => {
             if (response.success) {
                 const url = new URL(`/rooms/${roomName}`, window.location.origin);

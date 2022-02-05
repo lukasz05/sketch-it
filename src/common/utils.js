@@ -42,6 +42,12 @@ class UnknownShapeError extends DomainError {
     }
 }
 
+class ValidationError extends DomainError {
+    constructor(message) {
+        super(message);
+    }
+}
+
 export {
     DomainError,
     UserNotPermittedError,
@@ -49,4 +55,5 @@ export {
     SocketNotInRoomError,
     RoomNotFoundError,
     UnknownShapeError,
+    ValidationError,
 };
