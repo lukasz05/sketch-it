@@ -14,6 +14,13 @@ class GameStateRequestsHandler {
         this.#io = io;
         this.#socketToUserMap = socketToUserMap;
         this.#roomService = roomService;
+        this.#drawingSchedulers = {};
+        this.#guessingServices = {};
+        this.#wordProvider = wordProvider;
+        this.#initializeEventListeners();
+    }
+
+    #initializeEventListeners() {
         this.#roomService.addRemoveRoomListener((roomName) => {
             const drawingScheduler = this.#drawingSchedulers[roomName];
             if (drawingScheduler) {
@@ -24,22 +31,18 @@ class GameStateRequestsHandler {
                 delete this.#guessingServices[roomName];
             }
         });
-
-        this.#drawingSchedulers = {};
-        this.#guessingServices = {};
-
-        this.#wordProvider = wordProvider;
-
-        this.#initializeEventListeners();
-    }
-
-    #initializeEventListeners() {
         this.#io.on("connection", (socket) => {
             socket.on(eventNames.START_GAME_REQUEST, (callback) =>
                 this.#handleStartGameRequest(socket, callback)
             );
             socket.on(eventNames.GUESS_WORD_REQUEST, (word, callback) =>
                 this.#handleGuessWordRequest(socket, callback, word)
+            );
+            socket.on(eventNames.DRAWING_START_NEW_SHAPE, (coordPack, drawingTool, callback) => 
+                this.#handleDrawingStartRequest(socket, callback, coordPack, drawingTool)
+            );
+            socket.on(eventNames.DRAWING_COORDS, (coordPack, callback) => 
+                this.#handleDrawingCoordsRequest(socket, callback, coordPack)
             );
         });
     }
@@ -59,6 +62,7 @@ class GameStateRequestsHandler {
             const drawingScheduler = new DrawingScheduler(room.getMemberNames());
             drawingScheduler.addDrawingUserChangedListener(
                 (previouslyDrawingUser, currentlyDrawingUser, drawingEndTime) => {
+                    room.clearDrawing();
                     this.#io
                         .in(room.name)
                         .emit(
@@ -116,6 +120,49 @@ class GameStateRequestsHandler {
                 this.#drawingSchedulers[room.name].scheduleNextUser();
             }
 
+            callback({ success: true });
+        } catch (err) {
+            callback({ success: false, data: err });
+        }
+    }
+
+    #handleDrawingStartRequest(socket, callback, coordPack, drawingTool) {
+        try {
+            this.#assertSocketInRoom(socket);
+            const username = this.#socketToUserMap[socket.id];
+            const room = this.#getRoomBySocket(socket);
+            if (username != room.currentlyDrawingUser) {
+                throw new UserNotPermittedError(
+                    `User "${username}" is currently drawing and is not permitted to draw.`
+                );
+            }
+            if (!room.hasGameStarted) {
+                throw new GameNotStartedError(`Game in room "${room.name}" has not started yet.`);
+            }
+            room.startShape(coordPack, drawingTool);
+            socket.to(room.name).emit(eventNames.DRAWING_START_NEW_SHAPE,
+                                      coordPack, drawingTool);
+            callback({ success: true });
+        } catch (err) {
+            callback({ success: false, data: err });
+        }
+    }
+
+    #handleDrawingCoordsRequest(socket, callback, coordPack) {
+        try {
+            this.#assertSocketInRoom(socket);
+            const username = this.#socketToUserMap[socket.id];
+            const room = this.#getRoomBySocket(socket);
+            if (username != room.currentlyDrawingUser) {
+                throw new UserNotPermittedError(
+                    `User "${username}" is currently drawing and is not permitted to draw.`
+                );
+            }
+            if (!room.hasGameStarted) {
+                throw new GameNotStartedError(`Game in room "${room.name}" has not started yet.`);
+            }
+            room.pushCoordPack(coordPack);
+            socket.to(room.name).emit(eventNames.DRAWING_COORDS, coordPack);
             callback({ success: true });
         } catch (err) {
             callback({ success: false, data: err });

@@ -1,4 +1,5 @@
 import { paletteGrey, paletteColor } from "./colors.js";
+import { UnknownShapeError } from "./utils.js"
 
 class DrawingTool {
     color;
@@ -82,6 +83,9 @@ class Drawing {
     }
 
     pushCoord(newCoord) {
+        if (this.currentShape == null) {
+            throw new UnknownShapeError("Tried to push x,y before starting any shape");
+        }
         this.#size += 1;
         if (this.limit != null && this.#size > this.limit) {
             this.#popBack();
@@ -91,7 +95,6 @@ class Drawing {
 
     #popBack() {
         this.shapes[0].popBack();
-        console.log(this.shapes[0].length);
         if (this.shapes[0].length == 0) {
             this.shapes.shift();
         }
@@ -101,7 +104,7 @@ class Drawing {
     clear() {
         this.#size = 0;
         this.currentShape = null;
-        this.shapes = 0;
+        this.shapes = [];
     }
 }
 

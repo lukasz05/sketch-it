@@ -21,6 +21,9 @@ const eventNames = {
     GAME_STARTED_NOTIFICATION: "game started",
     DRAWING_USER_CHANGED_NOTIFICATION: "drawing user changed",
     USER_TRIED_TO_GUESS_WORD_NOTIFICATION: "user tried to guess word",
+
+    DRAWING_START_NEW_SHAPE: "started shape",
+    DRAWING_COORDS: "pack of coords"
 };
 
 export default eventNames;
