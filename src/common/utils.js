@@ -36,10 +36,17 @@ class RoomNotFoundError extends DomainError {
     }
 }
 
+class UnknownShapeError extends DomainError {
+    constructor(message) {
+        super(message);
+    }
+}
+
 export {
     DomainError,
     UserNotPermittedError,
     IllegalOperationError,
     SocketNotInRoomError,
     RoomNotFoundError,
+    UnknownShapeError,
 };

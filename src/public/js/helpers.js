@@ -14,4 +14,19 @@ function hideElement(element) {
     element.classList.add("is-hidden");
 }
 
-export { activateElement, deActivateElement, showElement, hideElement };
+function disableElement(element) {
+    element.disabled = true;
+}
+
+function enableElement(element) {
+    element.disabled = false;
+}
+
+export {
+    activateElement,
+    deActivateElement,
+    showElement,
+    hideElement,
+    disableElement,
+    enableElement,
+};

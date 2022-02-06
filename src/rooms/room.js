@@ -1,6 +1,8 @@
 import { Palette, paletteColor } from "../common/colors.js";
 import { UserData } from "../common/user.js";
 import { DomainError } from "../common/utils.js";
+import { Drawing } from "../common/drawing.js";
+import { MAX_POINTS_ON_CANVAS } from "../common/game-settings.js";
 
 const MAX_ROOM_MEMBERS_COUNT = 9;
 const POINTS_FOR_SUCCESSFUL_GUESS = 100;
@@ -14,6 +16,7 @@ class Room {
     currentlyDrawingUser;
     hasGameStarted;
     drawingEndTime;
+    mainDrawing;
 
     #drawingScheduler;
     #unusedColorsPalette;
@@ -24,6 +27,7 @@ class Room {
     constructor(name, settings) {
         this.name = name;
         this.settings = settings;
+        this.mainDrawing = new Drawing(MAX_POINTS_ON_CANVAS);
 
         this.#maxMembersCount = settings.maxMembersCount
             ? settings.maxMembersCount
@@ -72,6 +76,11 @@ class Room {
         return Object.keys(this.members);
     }
 
+    getMemberData(username) {
+        this.#assertUserInRoom(username);
+        return this.members[username];
+    }
+
     addMember(username) {
         if (this.#isUserInRoom(username)) {
             throw new UserAlreadyInRoomError(
@@ -105,6 +114,28 @@ class Room {
     setOwner(newOwner) {
         this.#assertUserInRoom(newOwner);
         this.owner = newOwner;
+    }
+
+    startShape(coordPack, drawingTool) {
+        let first = true;
+        for (const coord of coordPack) {
+            if (first) {
+                this.mainDrawing.addShape(coord, drawingTool);
+                first = false;
+            } else {
+                this.mainDrawing.pushCoord(coord);
+            }
+        }
+    }
+
+    pushCoordPack(coordPack) {
+        for (const coord of coordPack) {
+            this.mainDrawing.pushCoord(coord);
+        }
+    }
+
+    clearDrawing() {
+        this.mainDrawing.clear();
     }
 
     #chooseNewRandomOwner() {

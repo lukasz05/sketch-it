@@ -248,8 +248,8 @@ describe("RoomRequestsHandler", function () {
 
                             clientSocket1.on(
                                 eventNames.USER_JOINED_ROOM_NOTIFICATION,
-                                function (username) {
-                                    assert.equal(username, memberName);
+                                function (user) {
+                                    assert.deepEqual(actualRoom.members[memberName], user);
                                     done();
                                 }
                             );
