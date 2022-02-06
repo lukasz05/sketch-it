@@ -1,8 +1,8 @@
 import eventNames from "../../rooms/event-names.js";
-import { activateElement, deActivateElement, showElement, hideElement } from "./helpers.js";
+import { activateElement, deActivateElement, showElement, hideElement, disableElement, enableElement } from "./helpers.js";
 import { Coord, Drawing, Pencil, Highlighter, Eraser } from "../../common/drawing.js";
 import { COORD_PACK_MAX_LENGTH, MAX_POINTS_ON_CANVAS, TRANSITION_TIME, canvasDimX, canvasDimY, bgColor } from "../../common/game-settings.js";
-import { GuessObject, SuccessGuessObject, TransitionObject } from "./text-objects.js"
+import { GuessObject, SuccessGuessObject, TransitionObject, TimerObject } from "./text-objects.js"
 import { DomainError } from "../../common/utils.js"
 
 
@@ -15,17 +15,55 @@ const ERASER = Symbol("ERASER");
 const HIGHLIGHTER = Symbol("HIGHLIGHTER");
 
 
+class RoomData {
+    name;
+    owner;
+    members;
+    socket;
+
+    constructor(socket, room) {
+        this.name = room.name;
+        this.owner = room.owner;
+        this.members = room.members;
+        this.socket = socket;
+        this.initializeEventListeners();
+    }
+
+    initializeEventListeners() {
+        this.socket.on(eventNames.USER_LEFT_ROOM_NOTIFICATION, (username) => {
+            delete this.members[username];
+        });
+        this.socket.on(eventNames.USER_JOINED_ROOM_NOTIFICATION, (userData) => {
+            this.members[userData.username] = userData;
+        });
+        this.socket.on(eventNames.ROOM_OWNER_CHANGED_NOTIFICATION, (username) => {
+            this.owner = username;
+        });
+    }
+
+    getMemberData(username) {
+        return this.members[username];
+    }
+
+    getUserColor(username) {
+        return this.members[username].color;
+    }
+}
+
+
 /* TODO - edit room data on other requests */
 class GameClient {
     mainDrawing;
     guessInput;
     gameJustStarted;
+    interval;
+    timer;
     textQueue;
     coordQueue;
     pencilBtn;
     highlighterBtn;
     eraserBtn;
-    startGame;
+    startGameBtn;
     pencil;
     highlighter;
     eraser;
@@ -35,32 +73,40 @@ class GameClient {
     user;
     s;
 
-    constructor(socket, user, room, canvasID, pencilBtn, highlighterBtn, eraserBtn,
-                guessInput, sendGuessBtn, startGame) {
+    constructor(socket, username, room, canvasID, pencilBtn, highlighterBtn, eraserBtn,
+                guessInput, sendGuessBtn, startGameBtn) {
         /* Environment objects */
         this.socket = socket;
-        this.user = user;
-        this.room = room;
-        this.mainDrawing = new Drawing(MAX_POINTS_ON_CANVAS);
+        this.room = new RoomData(socket, room);
+        this.user = this.room.getMemberData(username);
         this.gameJustStarted = false;
         this.currentState = this.stateGuessing;
+        this.interval = null;
+        this.timer = new TimerObject();
         /* Game UI */
         this.pencilBtn = pencilBtn;
         this.highlighterBtn = highlighterBtn;
         this.eraserBtn = eraserBtn;
         this.guessInput = guessInput;
         this.sendGuessBtn = sendGuessBtn;
-        this.startGame = startGame;
+        this.startGameBtn = startGameBtn;
         /* Tools */
         this.pencil = new Pencil();
         this.eraser = new Eraser();
-        this.highlighter = new Highlighter(user.color);
+        this.highlighter = new Highlighter(this.user.color);
         /* Communication queues */
         this.textQueue = [];
         this.coordQueue = [];
-
+        
         this.s = new p5(this.gameEnvironment.bind(this), canvasID);
         this.initializeEventListeners();
+        this.initializeDrawing(room.mainDrawing);
+
+        /* hide and disable start game button for non owners */
+        if (this.user.username != this.room.owner) {
+            deActivateElement(this.startGameBtn);
+            hideElement(this.startGameBtn);
+        }
     }
 
     initializeEventListeners() {
@@ -94,11 +140,23 @@ class GameClient {
         this.pencilBtn.addEventListener("click", () => this.setTool(PENCIL));
         this.highlighterBtn.addEventListener("click", () => this.setTool(HIGHLIGHTER));
         this.eraserBtn.addEventListener("click", () => this.setTool(ERASER));
-        this.startGame.addEventListener("click", () => {
-            /* TODO - check if you are owner, disable after sending */
-            this.socket.emit(eventNames.START_GAME_REQUEST, () => {});
+        this.startGameBtn.addEventListener("click", () => {
+            if (this.user.username == this.room.owner) {
+                this.socket.emit(eventNames.START_GAME_REQUEST, () => {});
+            }
+            deActivateElement(this.startGameBtn);
+            hideElement(this.startGameBtn);
         });
+    }
 
+    initializeDrawing(drawing) {
+        this.mainDrawing = new Drawing(MAX_POINTS_ON_CANVAS);
+        if (drawing.size > MAX_POINTS_ON_CANVAS) {
+            throw DrawingLoadingError(`Drawing has too many points. Max allowed: ${MAX_POINTS_ON_CANVAS}, drawing.size: ${drawing.size}`);
+        }
+        this.mainDrawing.size = drawing.size;
+        this.mainDrawing.shapes = drawing.shapes;
+        this.mainDrawing.currentShape = drawing.currentShape;
     }
     
     setTool(_tool) {
@@ -117,6 +175,16 @@ class GameClient {
         }
     }
 
+    isOnCanvas(x, y) {
+        if (x <= canvasDimX &&
+            x >= 0 &&
+            y <= canvasDimY &&
+            y >= 0) {
+            return true;
+        }
+        return false;
+    }
+
     changeState(_state) {
         this.currentState.exitState();
         this.currentState = _state;
@@ -130,11 +198,10 @@ class GameClient {
     }
 
     handleUserChange(previouslyDrawingUser, currentlyDrawingUser, drawingEndTime) {
-        /* TODO add clock object and reset it's time? Real users color */
         this.changeState(this.stateIdle);
         let transitionText = "";
         let nextState = this.stateGuessing;
-        const userColor = { r:30, g:230, b:120 };
+        const userColor = this.room.getUserColor(currentlyDrawingUser).rgb;
         let timeout = this.gameJustStarted == true
             ? 0 
             : TRANSITION_TIME;
@@ -150,11 +217,20 @@ class GameClient {
             this.changeState(nextState);
         }, timeout);
         this.gameJustStarted = false;
+
+        /* Restart clock */
+        const timeLeft = Math.floor(( drawingEndTime - Date.now() ) / 1000)
+        if(this.interval) {
+            clearInterval(this.interval);
+        }
+        this.timer.set(timeLeft);
+        this.interval = setInterval(() => {
+            this.timer.tick();
+        }, 1000);
     }
 
     handleUserGuess(username, word, success) {
-        /* TODO get real user's color do not push if in transition mode */
-        let color = { r:0, g:255, b:34 };
+        let color = this.room.getUserColor(username).rgb;
         if (success) {
             this.textQueue.push(new SuccessGuessObject(word, color, username));
         } else {
@@ -197,9 +273,11 @@ class GameClient {
                 );
             } else {
                 /* emit coordPack */
-                this.socket.emit(eventNames.DRAWING_COORDS,
-                                 this.coordQueue, () => {}
-                );
+                if (this.coordQueue.length != 0) {
+                    this.socket.emit(eventNames.DRAWING_COORDS,
+                                     this.coordQueue, () => {}
+                    );
+                }
             }
             this.packetIsFirst = false;
             this.coordQueue = [];
@@ -271,7 +349,13 @@ class GameClient {
                     }
                 }
             }
-
+            /* displayTimer */
+            let tC = this.timer.color;
+            s.fill(s.color(tC.r, tC.g, tC.b));
+            s.textFont(s.comicFont);
+            s.textSize(this.timer.textSize);
+            s.textAlign(s.CENTER, s.CENTER);
+            s.text(this.timer.time + "", this.timer.x, this.timer.y);
         };
 
         /* p5 callbacks -- -- -- -- */ 
@@ -330,7 +414,8 @@ class GameClient {
         },
         draw: () => {
             this.s.reDraw();
-            if (this.prevCoord != null && this.s.mouseIsPressed) {
+            if (this.prevCoord != null && this.s.mouseIsPressed &&
+                this.isOnCanvas(this.s.mouseX, this.s.mouseY)) {
                 this.s.useTool(this.user.currentTool);
                 this.s.drawLine(this.prevCoord.x, this.prevCoord.y,
                                 this.s.mouseX, this.s.mouseY);
@@ -346,14 +431,18 @@ class GameClient {
 
         },
         mousePressed: () => {
-            this.prevCoord = new Coord(this.s.mouseX, this.s.mouseY);
-            this.mainDrawing.addShape(this.prevCoord, this.user.currentTool);
-            this.coordQueue.push(this.prevCoord);
-            this.packetIsFirst = true;
+            if (this.isOnCanvas(this.s.mouseX, this.s.mouseY)) {
+                this.prevCoord = new Coord(this.s.mouseX, this.s.mouseY);
+                this.mainDrawing.addShape(this.prevCoord, this.user.currentTool);
+                this.coordQueue.push(this.prevCoord);
+                this.packetIsFirst = true;
+            }
         },
         mouseReleased: () => {
-            this.prevCoord = null;
-            this.sendCoordPack();
+            if (this.prevCoord != null) {
+                this.prevCoord = null;
+                this.sendCoordPack();
+            }
         }
     };
     
@@ -362,11 +451,13 @@ class GameClient {
         state: STATE_GUESSING,
         enterState: () => {
             this.mainDrawing.clear();
-            activateElement(guessInput);
+            activateElement(this.guessInput);
+            enableElement(this.guessInput)
 
         },
         exitState: () => {
-            deActivateElement(guessInput);
+            deActivateElement(this.guessInput);
+            disableElement(this.guessInput);
         },
         draw: () => {
             this.s.reDraw();
@@ -386,13 +477,22 @@ class GameClient {
     }
 }
 
+
 class WrongStateError extends DomainError {
     constructor(message) {
         super(message);
     }
 }
 
+
 class UnknownToolError extends DomainError {
+    constructor(message) {
+        super(message);
+    }
+}
+
+
+class DrawingLoadingError extends DomainError {
     constructor(message) {
         super(message);
     }

@@ -1,3 +1,4 @@
+import { paletteGrey } from "../../common/colors.js";
 /* TODO - move this function to utility.js */
 function randomInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -18,6 +19,11 @@ const TRANSITION_STEP = 0.015;
 const INITIAL_TRANSITION_X = -200;
 const INITIAL_TRANSITION_Y = 200;
 const INITIAL_TRANSITION_TEXT_SIZE = 70;
+
+const TIMER_TEXT_SIZE = 40;
+const TIMER_TEXT_X = 350;
+const TIMER_TEXT_Y = 20;
+const TIMER_INITIAL_COLOR = paletteGrey.getColorByHTMLClass("is-black").rgb;
 
 
 class GuessObject {
@@ -136,4 +142,37 @@ class TransitionObject {
     }
 }
 
-export { GuessObject, SuccessGuessObject, TransitionObject};
+
+class TimerObject {
+    x;
+    y;
+    textSize;
+    color;
+    time;
+    initialValue;
+    constructor() {
+        this.textSize = TIMER_TEXT_SIZE;
+        this.x = TIMER_TEXT_X;
+        this.y = TIMER_TEXT_Y;
+        this.color = Object.assign({}, TIMER_INITIAL_COLOR);
+        this.time = 0;
+        this.initialValue = 0;
+    }
+
+    set(time) {
+        this.time = time;
+        this.initialValue = time;
+        this.color = Object.assign({}, TIMER_INITIAL_COLOR);
+    }
+    tick() {
+        if(this.time <= 0) { return false }
+        this.color.r = TIMER_INITIAL_COLOR.r
+                       + (255 - TIMER_INITIAL_COLOR.r) 
+                       * ((this.initialValue - this.time)/this.initialValue);
+        this.time -= 1;
+        return true;
+    }
+}
+
+
+export { GuessObject, SuccessGuessObject, TransitionObject, TimerObject};

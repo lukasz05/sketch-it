@@ -111,7 +111,7 @@ class RoomRequestsHandler {
 
             callback({ success: true, data: room });
 
-            socket.to(roomName).emit(eventNames.USER_JOINED_ROOM_NOTIFICATION, username);
+            socket.to(roomName).emit(eventNames.USER_JOINED_ROOM_NOTIFICATION, room.getMemberData(username));
         } catch (err) {
             callback({ success: false, data: err });
         }
