@@ -24,9 +24,9 @@ class GuessingService {
         this.#guessListeners.forEach((listener) => listener(username, word, success));
     }
 
-
     getNewWord() {
         this.currentWord = this.#wordProvider.getRandomWord();
+        return this.currentWord;
     }
 }
 
