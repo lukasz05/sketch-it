@@ -53,7 +53,21 @@
         <button id="eraserBtn" class="button">Eraser</button><br />
         <div id="draw-me" class="subtitle"></div>
         <br />
-        <div id="game-canvas" class="has-borders"></div>
+        <div class="columns">
+            <div class="column">
+                <div id="leaderboard-card" class="card" style="height: 100%">
+                    <header class="card-header">
+                        <p class="card-header-title">Leaderboard</p>
+                    </header>
+                    <div class="card-content">
+                        <div id="leaderboard-card-content" class="content"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-two-thirds">
+                <div id="game-canvas" class="has-borders"></div>
+            </div>
+        </div>
         <br />
         <input class="input" id="guessInput" name="guessInput" placeholder="enter your guess..." />
         <button id="sendGuess" class="button">Send Guess</button><br \ />

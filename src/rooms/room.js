@@ -2,10 +2,12 @@ import { Palette, paletteColor } from "../common/colors.js";
 import { UserData } from "../common/user.js";
 import { DomainError } from "../common/utils.js";
 import { Drawing } from "../common/drawing.js";
-import { MAX_POINTS_ON_CANVAS } from "../common/game-settings.js";
-
-const MAX_ROOM_MEMBERS_COUNT = 9;
-const POINTS_FOR_SUCCESSFUL_GUESS = 100;
+import {
+    MAX_POINTS_ON_CANVAS,
+    MAX_ROOM_MEMBERS_COUNT,
+    POINTS_FOR_SUCCESSFUL_GUESS,
+    POINTS_FOR_UNSUCCESSFUL_GUESS,
+} from "../common/game-settings.js";
 
 class Room {
     name;
@@ -23,6 +25,7 @@ class Room {
 
     #maxMembersCount;
     #pointsForSuccessfulGuess;
+    #pointsForUnsuccessfulGuess;
 
     constructor(name, settings) {
         this.name = name;
@@ -36,6 +39,10 @@ class Room {
         this.#pointsForSuccessfulGuess = settings.pointsForSuccessfulGuess
             ? settings.pointsForSuccessfulGuess
             : POINTS_FOR_SUCCESSFUL_GUESS;
+
+        this.#pointsForUnsuccessfulGuess = settings.pointsForUnsuccessfulGuess
+            ? settings.pointsForUnsuccessfulGuess
+            : POINTS_FOR_UNSUCCESSFUL_GUESS;
 
         this.owner = null;
         this.members = {};
@@ -68,6 +75,8 @@ class Room {
         guessingService.addGuessListener((username, word, success) => {
             if (success) {
                 this.members[username].score += this.#pointsForSuccessfulGuess;
+            } else {
+                this.members[username].score -= this.#pointsForUnsuccessfulGuess;
             }
         });
     }
