@@ -1,10 +1,23 @@
 import eventNames from "../../rooms/event-names.js";
-import { activateElement, deActivateElement, showElement, hideElement, disableElement, enableElement } from "./helpers.js";
+import {
+    activateElement,
+    deActivateElement,
+    showElement,
+    hideElement,
+    disableElement,
+    enableElement,
+} from "./helpers.js";
 import { Coord, Drawing, Pencil, Highlighter, Eraser } from "../../common/drawing.js";
-import { COORD_PACK_MAX_LENGTH, MAX_POINTS_ON_CANVAS, TRANSITION_TIME, canvasDimX, canvasDimY, bgColor } from "../../common/game-settings.js";
-import { GuessObject, SuccessGuessObject, TransitionObject, TimerObject } from "./text-objects.js"
-import { DomainError } from "../../common/utils.js"
-
+import {
+    COORD_PACK_MAX_LENGTH,
+    MAX_POINTS_ON_CANVAS,
+    TRANSITION_TIME,
+    canvasDimX,
+    canvasDimY,
+    bgColor,
+} from "../../common/game-settings.js";
+import { GuessObject, SuccessGuessObject, TransitionObject, TimerObject } from "./text-objects.js";
+import { DomainError } from "../../common/utils.js";
 
 const STATE_DRAWING = Symbol("STATE_DRAWING");
 const STATE_GUESSING = Symbol("STATE_GUESSING");
@@ -13,7 +26,6 @@ const STATE_IDLE = Symbol("STATE_IDLE");
 const PENCIL = Symbol("PENCIL");
 const ERASER = Symbol("ERASER");
 const HIGHLIGHTER = Symbol("HIGHLIGHTER");
-
 
 class RoomData {
     name;
@@ -50,7 +62,6 @@ class RoomData {
     }
 }
 
-
 /* TODO - edit room data on other requests */
 class GameClient {
     mainDrawing;
@@ -73,8 +84,18 @@ class GameClient {
     user;
     s;
 
-    constructor(socket, username, room, canvasID, pencilBtn, highlighterBtn, eraserBtn,
-                guessInput, sendGuessBtn, startGameBtn) {
+    constructor(
+        socket,
+        username,
+        room,
+        canvasID,
+        pencilBtn,
+        highlighterBtn,
+        eraserBtn,
+        guessInput,
+        sendGuessBtn,
+        startGameBtn
+    ) {
         /* Environment objects */
         this.socket = socket;
         this.room = new RoomData(socket, room);
@@ -97,7 +118,7 @@ class GameClient {
         /* Communication queues */
         this.textQueue = [];
         this.coordQueue = [];
-        
+
         this.s = new p5(this.gameEnvironment.bind(this), canvasID);
         this.initializeEventListeners();
         this.initializeDrawing(room.mainDrawing);
@@ -110,24 +131,20 @@ class GameClient {
     }
 
     initializeEventListeners() {
-        this.socket.on(eventNames.DRAWING_USER_CHANGED_NOTIFICATION,
-                       (previouslyDrawingUser, currentlyDrawingUser, drawingEndTime) => 
-            this.handleUserChange(previouslyDrawingUser, currentlyDrawingUser, drawingEndTime)
+        this.socket.on(
+            eventNames.DRAWING_USER_CHANGED_NOTIFICATION,
+            (previouslyDrawingUser, currentlyDrawingUser, drawingEndTime) =>
+                this.handleUserChange(previouslyDrawingUser, currentlyDrawingUser, drawingEndTime)
         );
-        this.socket.on(eventNames.USER_TRIED_TO_GUESS_WORD_NOTIFICATION,
-                       (username, word, success) => 
-            this.handleUserGuess(username, word, success)
+        this.socket.on(
+            eventNames.USER_TRIED_TO_GUESS_WORD_NOTIFICATION,
+            (username, word, success) => this.handleUserGuess(username, word, success)
         );
-        this.socket.on(eventNames.DRAWING_START_NEW_SHAPE,
-                       (coordPack, drawingTool) =>
+        this.socket.on(eventNames.DRAWING_START_NEW_SHAPE, (coordPack, drawingTool) =>
             this.handleShapeStart(coordPack, drawingTool)
         );
-        this.socket.on(eventNames.DRAWING_COORDS, (coordPack) => 
-            this.handleCoords(coordPack)
-        );
-        this.socket.on(eventNames.GAME_STARTED_NOTIFICATION, () => 
-            this.handleGameStart()
-        );
+        this.socket.on(eventNames.DRAWING_COORDS, (coordPack) => this.handleCoords(coordPack));
+        this.socket.on(eventNames.GAME_STARTED_NOTIFICATION, () => this.handleGameStart());
 
         this.guessInput.addEventListener("keyup", (event) => {
             if (event.keyCode === 13) {
@@ -152,34 +169,33 @@ class GameClient {
     initializeDrawing(drawing) {
         this.mainDrawing = new Drawing(MAX_POINTS_ON_CANVAS);
         if (drawing.size > MAX_POINTS_ON_CANVAS) {
-            throw DrawingLoadingError(`Drawing has too many points. Max allowed: ${MAX_POINTS_ON_CANVAS}, drawing.size: ${drawing.size}`);
+            throw DrawingLoadingError(
+                `Drawing has too many points. Max allowed: ${MAX_POINTS_ON_CANVAS}, drawing.size: ${drawing.size}`
+            );
         }
         this.mainDrawing.size = drawing.size;
         this.mainDrawing.shapes = drawing.shapes;
         this.mainDrawing.currentShape = drawing.currentShape;
     }
-    
+
     setTool(_tool) {
         switch (_tool) {
             case PENCIL:
                 this.user.currentTool = this.pencil;
-            break;
+                break;
             case HIGHLIGHTER:
                 this.user.currentTool = this.highlighter;
-            break;
+                break;
             case ERASER:
                 this.user.currentTool = this.eraser;
-            break;
+                break;
             default:
                 throw new UnknownToolError(`Tool unknown: "${_tool}"`);
         }
     }
 
     isOnCanvas(x, y) {
-        if (x <= canvasDimX &&
-            x >= 0 &&
-            y <= canvasDimY &&
-            y >= 0) {
+        if (x <= canvasDimX && x >= 0 && y <= canvasDimY && y >= 0) {
             return true;
         }
         return false;
@@ -202,14 +218,12 @@ class GameClient {
         let transitionText = "";
         let nextState = this.stateGuessing;
         const userColor = this.room.getUserColor(currentlyDrawingUser).rgb;
-        let timeout = this.gameJustStarted == true
-            ? 0 
-            : TRANSITION_TIME;
+        let timeout = this.gameJustStarted == true ? 0 : TRANSITION_TIME;
         if (currentlyDrawingUser == this.user.username) {
             nextState = this.stateDrawing;
             transitionText = "YOUR\nTURN!";
         } else {
-            transitionText = currentlyDrawingUser +"'s\n TURN!";
+            transitionText = currentlyDrawingUser + "'s\n TURN!";
         }
 
         setTimeout(() => {
@@ -219,8 +233,8 @@ class GameClient {
         this.gameJustStarted = false;
 
         /* Restart clock */
-        const timeLeft = Math.floor(( drawingEndTime - Date.now() ) / 1000)
-        if(this.interval) {
+        const timeLeft = Math.floor((drawingEndTime - Date.now()) / 1000);
+        if (this.interval) {
             clearInterval(this.interval);
         }
         this.timer.set(timeLeft);
@@ -266,42 +280,41 @@ class GameClient {
         if (this.currentState.state == STATE_DRAWING) {
             if (this.packetIsFirst) {
                 /* emit start shape */
-                this.socket.emit(eventNames.DRAWING_START_NEW_SHAPE,
-                                 this.coordQueue,
-                                 this.user.currentTool,
-                                 () => {}
+                this.socket.emit(
+                    eventNames.DRAWING_START_NEW_SHAPE,
+                    this.coordQueue,
+                    this.user.currentTool,
+                    () => {}
                 );
             } else {
                 /* emit coordPack */
                 if (this.coordQueue.length != 0) {
-                    this.socket.emit(eventNames.DRAWING_COORDS,
-                                     this.coordQueue, () => {}
-                    );
+                    this.socket.emit(eventNames.DRAWING_COORDS, this.coordQueue, () => {});
                 }
             }
             this.packetIsFirst = false;
             this.coordQueue = [];
         } else {
-            throw new WrongStateError(`User "${this.user.username}" tried to send coordPack but was not in "STATE_DRAWING"!`);
+            throw new WrongStateError(
+                `User "${this.user.username}" tried to send coordPack but was not in "STATE_DRAWING"!`
+            );
         }
     }
 
     sendGuess() {
         if (this.currentState.state == STATE_GUESSING) {
-            this.socket.emit(eventNames.GUESS_WORD_REQUEST,
-                this.guessInput.value,
-                () => {}
-            );
+            this.socket.emit(eventNames.GUESS_WORD_REQUEST, this.guessInput.value, () => {});
         } else {
-            throw new WrongStateError(`User "${this.user.username}" trying to guess was not in "STATE_GUESSING"!`);
+            throw new WrongStateError(
+                `User "${this.user.username}" trying to guess was not in "STATE_GUESSING"!`
+            );
         }
     }
-    
+
     /* -- -- -- -- -- -- -- -- -- -- -- -- */
 
     /* P5 sketch constructor (defines 'template' for each state) */
     gameEnvironment(s) {
-
         /* Utility functions -- -- -- -- */
 
         s.drawLine = (px, py, nx, ny) => {
@@ -329,7 +342,7 @@ class GameClient {
                     prev = v;
                 }
             }
-        }
+        };
 
         s.drawTextObjects = () => {
             s.strokeWeight(0);
@@ -340,7 +353,6 @@ class GameClient {
                     s.textSize(g.textSize);
                     s.textAlign(s.CENTER, s.CENTER);
                     s.text(g.text, g.x, g.y);
-
                 } else {
                     /* delete g from textQueue */
                     const index = this.textQueue.indexOf(g);
@@ -358,7 +370,7 @@ class GameClient {
             s.text(this.timer.time + "", this.timer.x, this.timer.y);
         };
 
-        /* p5 callbacks -- -- -- -- */ 
+        /* p5 callbacks -- -- -- -- */
 
         s.setup = () => {
             s.createCanvas(canvasDimX, canvasDimY);
@@ -366,7 +378,7 @@ class GameClient {
         };
 
         s.preload = () => {
-            s.comicFont = s.loadFont('/fonts/BaksoSapi.otf');
+            s.comicFont = s.loadFont("/fonts/BaksoSapi.otf");
         };
 
         s.mousePressed = () => {
@@ -380,7 +392,7 @@ class GameClient {
         s.draw = () => {
             s.background(s.color(bgColor));
             this.currentState.draw();
-            s.drawTextObjects();            
+            s.drawTextObjects();
         };
     }
 
@@ -388,7 +400,7 @@ class GameClient {
 
     prevCoord;
     packetIsFirst;
-    
+
     /* You are drawing */
     stateDrawing = {
         state: STATE_DRAWING,
@@ -402,7 +414,6 @@ class GameClient {
             showElement(this.pencilBtn);
             activateElement(this.highlighterBtn);
             showElement(this.highlighterBtn);
-        
         },
         exitState: () => {
             deActivateElement(this.eraserBtn);
@@ -414,11 +425,13 @@ class GameClient {
         },
         draw: () => {
             this.s.reDraw();
-            if (this.prevCoord != null && this.s.mouseIsPressed &&
-                this.isOnCanvas(this.s.mouseX, this.s.mouseY)) {
+            if (
+                this.prevCoord != null &&
+                this.s.mouseIsPressed &&
+                this.isOnCanvas(this.s.mouseX, this.s.mouseY)
+            ) {
                 this.s.useTool(this.user.currentTool);
-                this.s.drawLine(this.prevCoord.x, this.prevCoord.y,
-                                this.s.mouseX, this.s.mouseY);
+                this.s.drawLine(this.prevCoord.x, this.prevCoord.y, this.s.mouseX, this.s.mouseY);
                 this.prevCoord = new Coord(this.s.mouseX, this.s.mouseY);
                 this.mainDrawing.pushCoord(this.prevCoord);
 
@@ -428,7 +441,6 @@ class GameClient {
                     this.sendCoordPack();
                 }
             }
-
         },
         mousePressed: () => {
             if (this.isOnCanvas(this.s.mouseX, this.s.mouseY)) {
@@ -443,17 +455,16 @@ class GameClient {
                 this.prevCoord = null;
                 this.sendCoordPack();
             }
-        }
+        },
     };
-    
+
     /* Someone else is drawing */
     stateGuessing = {
         state: STATE_GUESSING,
         enterState: () => {
             this.mainDrawing.clear();
             activateElement(this.guessInput);
-            enableElement(this.guessInput)
-
+            enableElement(this.guessInput);
         },
         exitState: () => {
             deActivateElement(this.guessInput);
@@ -463,9 +474,9 @@ class GameClient {
             this.s.reDraw();
         },
         mousePressed: () => {},
-        mouseReleased: () => {}
+        mouseReleased: () => {},
     };
-    
+
     /* Game has not started yet */
     stateIdle = {
         state: STATE_IDLE,
@@ -473,10 +484,9 @@ class GameClient {
         exitState: () => {},
         draw: () => {},
         mousePressed: () => {},
-        mouseReleased: () => {}
-    }
+        mouseReleased: () => {},
+    };
 }
-
 
 class WrongStateError extends DomainError {
     constructor(message) {
@@ -484,13 +494,11 @@ class WrongStateError extends DomainError {
     }
 }
 
-
 class UnknownToolError extends DomainError {
     constructor(message) {
         super(message);
     }
 }
-
 
 class DrawingLoadingError extends DomainError {
     constructor(message) {

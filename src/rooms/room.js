@@ -75,10 +75,10 @@ class Room {
     getMemberNames() {
         return Object.keys(this.members);
     }
-    
+
     getMemberData(username) {
         this.#assertUserInRoom(username);
-        return this.members[username]; 
+        return this.members[username];
     }
 
     addMember(username) {
@@ -123,7 +123,7 @@ class Room {
                 this.mainDrawing.addShape(coord, drawingTool);
                 first = false;
             } else {
-                this.mainDrawing.pushCoord(coord); 
+                this.mainDrawing.pushCoord(coord);
             }
         }
     }

@@ -38,10 +38,10 @@ class GameStateRequestsHandler {
             socket.on(eventNames.GUESS_WORD_REQUEST, (word, callback) =>
                 this.#handleGuessWordRequest(socket, callback, word)
             );
-            socket.on(eventNames.DRAWING_START_NEW_SHAPE, (coordPack, drawingTool, callback) => 
+            socket.on(eventNames.DRAWING_START_NEW_SHAPE, (coordPack, drawingTool, callback) =>
                 this.#handleDrawingStartRequest(socket, callback, coordPack, drawingTool)
             );
-            socket.on(eventNames.DRAWING_COORDS, (coordPack, callback) => 
+            socket.on(eventNames.DRAWING_COORDS, (coordPack, callback) =>
                 this.#handleDrawingCoordsRequest(socket, callback, coordPack)
             );
         });
@@ -140,8 +140,7 @@ class GameStateRequestsHandler {
                 throw new GameNotStartedError(`Game in room "${room.name}" has not started yet.`);
             }
             room.startShape(coordPack, drawingTool);
-            socket.to(room.name).emit(eventNames.DRAWING_START_NEW_SHAPE,
-                                      coordPack, drawingTool);
+            socket.to(room.name).emit(eventNames.DRAWING_START_NEW_SHAPE, coordPack, drawingTool);
             callback({ success: true });
         } catch (err) {
             callback({ success: false, data: err });

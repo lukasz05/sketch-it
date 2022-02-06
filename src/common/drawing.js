@@ -1,5 +1,5 @@
 import { paletteGrey, paletteColor } from "./colors.js";
-import { UnknownShapeError } from "./utils.js"
+import { UnknownShapeError } from "./utils.js";
 
 class DrawingTool {
     color;

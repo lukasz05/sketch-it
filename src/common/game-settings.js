@@ -13,6 +13,5 @@ export {
     TRANSITION_TIME,
     canvasDimY,
     canvasDimX,
-    bgColor
-}; 
-
+    bgColor,
+};

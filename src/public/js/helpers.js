@@ -22,4 +22,11 @@ function enableElement(element) {
     element.disabled = false;
 }
 
-export { activateElement, deActivateElement, showElement, hideElement, disableElement, enableElement };
+export {
+    activateElement,
+    deActivateElement,
+    showElement,
+    hideElement,
+    disableElement,
+    enableElement,
+};
