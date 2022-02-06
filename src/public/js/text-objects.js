@@ -13,6 +13,10 @@ const GUESS_ALPHA_STEP = 4;
 const GUESS_TEXT_STEP = 0.25;
 const INITIAL_TEXT_SIZE = 50;
 
+const SUCCESS_ALPHA_STEP = 1;
+const SUCCESS_TEXT_SIZE = 55;
+const SUCCESS_LIFETIME = 220;
+
 const TRANSITION_DEATH_X = 600;
 const TRANSITION_STEP = 0.015;
 const INITIAL_TRANSITION_X = -200;
@@ -24,6 +28,13 @@ const TIMER_TEXT_X = 350;
 const TIMER_TEXT_Y = 20;
 const TIMER_INITIAL_COLOR = paletteGrey.getColorByHTMLClass("is-black").rgb;
 
+const DRAW_ME_TEXT_SIZE = 20;
+const DRAW_ME_X = 50;
+const DRAW_ME_Y = 20;
+const DRAW_ME_COLOR = paletteGrey.getColorByHTMLClass("is-grey-darkest").rgb;
+
+const MAX_ALPHA = 255;
+
 class GuessObject {
     x;
     y;
@@ -32,6 +43,7 @@ class GuessObject {
     text;
     textSize;
     color;
+    alpha;
     lifetime;
 
     constructor(text, color) {
@@ -67,6 +79,7 @@ class SuccessGuessObject {
     text;
     textSize;
     color;
+    alpha;
     lifetime;
 
     constructor(text, color, username) {
@@ -75,22 +88,22 @@ class SuccessGuessObject {
         this.x = INITIAL_GUESS_X;
         this.y = INITIAL_GUESS_Y;
         this.color = color;
-        this.lifetime = MAX_GUESS_LIFE * 2;
-        this.dirY = -0.5;
+        this.lifetime = SUCCESS_LIFETIME;
+        this.dirY = -2;
         this.dirX = 0;
-        this.alpha = 255;
-        this.textSize = INITIAL_TEXT_SIZE;
+        this.alpha = MAX_ALPHA;
+        this.textSize = SUCCESS_TEXT_SIZE;
     }
     live() {
         if (this.lifetime == 0) {
             return false;
         }
-        if (this.lifetime == MAX_GUESS_LIFE) {
+        if (this.lifetime == SUCCESS_LIFETIME / 2) {
             this.text = this.username + "\n guessed!";
             this.textSize /= 2;
         }
         this.lifetime -= 1;
-        this.alpha -= GUESS_ALPHA_STEP / 2;
+        this.alpha -= SUCCESS_ALPHA_STEP;
         this.x += this.dirX;
         this.y += this.dirY;
         return true;
@@ -105,6 +118,7 @@ class TransitionObject {
     text;
     textSize;
     color;
+    alpha;
     iter;
 
     constructor(text, color) {
@@ -115,6 +129,7 @@ class TransitionObject {
         this.transitionCenter = (INITIAL_TRANSITION_X + TRANSITION_DEATH_X) / 2;
         this.t = 0.0;
         this.color = color;
+        this.alpha = MAX_ALPHA;
         this.textSize = INITIAL_TRANSITION_TEXT_SIZE;
     }
     easeInOutSine(x) {
@@ -142,12 +157,14 @@ class TimerObject {
     y;
     textSize;
     color;
+    alpha;
     time;
     initialValue;
     constructor() {
         this.textSize = TIMER_TEXT_SIZE;
         this.x = TIMER_TEXT_X;
         this.y = TIMER_TEXT_Y;
+        this.alpha = MAX_ALPHA;
         this.color = Object.assign({}, TIMER_INITIAL_COLOR);
         this.time = 0;
         this.initialValue = 0;
@@ -170,4 +187,26 @@ class TimerObject {
     }
 }
 
-export { GuessObject, SuccessGuessObject, TransitionObject, TimerObject };
+class DrawMeObject {
+    x;
+    y;
+    text;
+    textSize;
+    color;
+    alpha;
+
+    constructor() {
+        this.textSize = DRAW_ME_TEXT_SIZE;
+        this.x = DRAW_ME_X;
+        this.y = DRAW_ME_Y;
+        this.color = DRAW_ME_COLOR;
+        this.alpha = MAX_ALPHA;
+        this.text = "";
+    }
+
+    displayText(text) {
+        this.text = text;
+    }
+}
+
+export { GuessObject, SuccessGuessObject, TransitionObject, TimerObject, DrawMeObject };

@@ -1,6 +1,6 @@
-/*global p5*/
 /*global Symbol*/
 /*eslint no-undef: "error"*/
+import p5 from "p5";
 import eventNames from "../../rooms/event-names.js";
 import {
     activateElement,
@@ -19,7 +19,13 @@ import {
     canvasDimY,
     bgColor,
 } from "../../common/game-settings.js";
-import { GuessObject, SuccessGuessObject, TransitionObject, TimerObject } from "./text-objects.js";
+import {
+    GuessObject,
+    SuccessGuessObject,
+    TransitionObject,
+    TimerObject,
+    DrawMeObject,
+} from "./text-objects.js";
 import { DomainError } from "../../common/utils.js";
 
 const STATE_DRAWING = Symbol("STATE_DRAWING");
@@ -71,6 +77,7 @@ class GameClient {
         this.currentState = this.stateGuessing;
         this.interval = null;
         this.timer = new TimerObject();
+        this.drawMe = new DrawMeObject();
         /* Game UI */
         this.pencilBtn = pencilBtn;
         this.highlighterBtn = highlighterBtn;
@@ -95,6 +102,23 @@ class GameClient {
             deActivateElement(this.startGameBtn);
             hideElement(this.startGameBtn);
         }
+        /* hide drawing UI elements */
+        {
+            deActivateElement(this.eraserBtn);
+            hideElement(this.eraserBtn);
+            deActivateElement(this.pencilBtn);
+            hideElement(this.pencilBtn);
+            deActivateElement(this.highlighterBtn);
+            hideElement(this.highlighterBtn);
+        }
+        /* set background color */
+        {
+            const canv = document.getElementById(canvasID);
+            canv.style.background = this.user.color.hex;
+            canv.style.borderStyle = "solid";
+            canv.style.borderWidth = 4;
+            canv.style.borderColor = this.user.color.hex;
+        }
     }
 
     initializeEventListeners() {
@@ -112,6 +136,12 @@ class GameClient {
         );
         this.socket.on(eventNames.DRAWING_COORDS, (coordPack) => this.handleCoords(coordPack));
         this.socket.on(eventNames.GAME_STARTED_NOTIFICATION, () => this.handleGameStart());
+        this.socket.on(eventNames.DRAW_THIS_WORD_NOTIFICATION, (wordToDraw) => {
+            this.handleNewWord(wordToDraw);
+        });
+        this.socket.on(eventNames.ROOM_OWNER_CHANGED_NOTIFICATION, (username) => {
+            this.handleOwnerChanged(username);
+        });
 
         this.guessInput.addEventListener("keyup", (event) => {
             if (event.keyCode === 13) {
@@ -179,6 +209,12 @@ class GameClient {
     handleGameStart() {
         this.gameJustStarted = true;
     }
+    handleOwnerChanged(username) {
+        if (this.room.hasGameStarted == false && this.user.username == username) {
+            activateElement(this.startGameBtn);
+            showElement(this.startGameBtn);
+        }
+    }
 
     handleUserChange(previouslyDrawingUser, currentlyDrawingUser, drawingEndTime) {
         this.changeState(this.stateIdle);
@@ -191,6 +227,7 @@ class GameClient {
             transitionText = "YOUR\nTURN!";
         } else {
             transitionText = currentlyDrawingUser + "'s\n TURN!";
+            this.drawMe.displayText(currentlyDrawingUser + "'s\ndrawing");
         }
 
         setTimeout(() => {
@@ -208,6 +245,10 @@ class GameClient {
         this.interval = setInterval(() => {
             this.timer.tick();
         }, 1000);
+    }
+
+    handleNewWord(wordToDraw) {
+        this.drawMe.displayText("Draw:\n" + wordToDraw);
     }
 
     handleUserGuess(username, word, success) {
@@ -311,15 +352,20 @@ class GameClient {
             }
         };
 
+        s.drawText = (textObject, text) => {
+            const toC = textObject.color;
+            s.fill(s.color(toC.r, toC.g, toC.b, textObject.alpha));
+            s.textFont(s.comicFont);
+            s.textSize(textObject.textSize);
+            s.textAlign(s.CENTER, s.CENTER);
+            s.text(text, textObject.x, textObject.y);
+        };
+
         s.drawTextObjects = () => {
             s.strokeWeight(0);
             for (let g of this.textQueue) {
                 if (g.live()) {
-                    s.fill(s.color(g.color.r, g.color.g, g.color.b, g.alpha));
-                    s.textFont(s.comicFont);
-                    s.textSize(g.textSize);
-                    s.textAlign(s.CENTER, s.CENTER);
-                    s.text(g.text, g.x, g.y);
+                    s.drawText(g, g.text);
                 } else {
                     /* delete g from textQueue */
                     const index = this.textQueue.indexOf(g);
@@ -328,13 +374,12 @@ class GameClient {
                     }
                 }
             }
-            /* displayTimer */
-            let tC = this.timer.color;
-            s.fill(s.color(tC.r, tC.g, tC.b));
-            s.textFont(s.comicFont);
-            s.textSize(this.timer.textSize);
-            s.textAlign(s.CENTER, s.CENTER);
-            s.text(this.timer.time + "", this.timer.x, this.timer.y);
+            /* display Timer */
+            if (this.timer.time != 0) {
+                s.drawText(this.timer, this.timer.time + "");
+            }
+            /* display Word To Draw */
+            s.drawText(this.drawMe, this.drawMe.text);
         };
 
         /* p5 callbacks -- -- -- -- */

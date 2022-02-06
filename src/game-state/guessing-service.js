@@ -26,6 +26,10 @@ class GuessingService {
     #notifyListeners(username, word, success) {
         this.#guessListeners.forEach((listener) => listener(username, word, success));
     }
+
+    getCurrentWord() {
+        return this.currentWord;
+    }
 }
 
 export default GuessingService;

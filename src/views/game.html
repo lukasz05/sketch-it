@@ -3,7 +3,6 @@
         <title>Sketch-it</title>
         <base target="_top" />
         <link rel="stylesheet" href="/css/style.css" />
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.6/p5.js"></script>
         <script src="/js/dist/game.js"></script>
     </head>
     <body>
@@ -48,12 +47,27 @@
                 </div>
             </div>
         </div>
-        <button id="pencilBtn" class="button">Pencil</button>
-        <button id="highlighterBtn" class="button">Highlighter</button>
-        <button id="eraserBtn" class="button">Eraser</button><br />
-        <div id="draw-me" class="subtitle"></div>
         <br />
         <div class="columns">
+            <div class="column is-two-thirds">
+                <div class="has-text-centered">
+                    <button id="pencilBtn" class="button">Pencil</button>
+                    <button id="highlighterBtn" class="button">Highlighter</button>
+                    <button id="eraserBtn" class="button">Eraser</button>
+                </div>
+                <br />
+                <div id="game-canvas" class="has-text-centered"></div>
+                <br />
+                <input
+                    class="input"
+                    id="guessInput"
+                    name="guessInput"
+                    placeholder="enter your guess..."
+                />
+                <button id="sendGuess" class="button is-pulled-left is-blue">Send Guess</button
+                ><br />
+                <button id="startGame" class="button is-pulled-left">Start Game!</button>
+            </div>
             <div class="column">
                 <div id="leaderboard-card" class="card" style="height: 100%">
                     <header class="card-header">
@@ -64,13 +78,7 @@
                     </div>
                 </div>
             </div>
-            <div class="column is-two-thirds">
-                <div id="game-canvas" class="has-borders"></div>
-            </div>
         </div>
         <br />
-        <input class="input" id="guessInput" name="guessInput" placeholder="enter your guess..." />
-        <button id="sendGuess" class="button">Send Guess</button><br \ />
-        <button id="startGame" class="button">Start Game!</button>
     </body>
 </html>

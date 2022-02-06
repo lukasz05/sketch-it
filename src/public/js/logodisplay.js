@@ -1,9 +1,7 @@
+import p5 from "p5";
 import { logoImage } from "../../common/logo-frames.js";
 import { paletteGrey, paletteColor } from "../../common/colors.js";
 import { Pencil } from "../../common/drawing.js";
-
-/*global p5*/
-/*eslint no-undef: "error"*/
 
 /* Canvas settings */
 const logoWidth = 700;
