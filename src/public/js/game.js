@@ -60,19 +60,43 @@ window.addEventListener("load", function () {
         const setUsernameErrorNotification = document.getElementById(
             "set-user-name-error-notification"
         );
+        const usernameInput = document.getElementById("set-user-name");
+
         hideElement(setUsernameErrorNotification);
         activateElement(setUsernameModal);
-        document.getElementById("send-set-user-name-form").addEventListener("click", function () {
-            const username = document.getElementById("set-user-name").value;
-            socket.emit(eventNames.JOIN_ROOM_REQUEST, username, roomName, (response) => {
-                if (response.success) {
-                    deActivateElement(setUsernameModal);
-                    letTheGameBegin(socket, username, response.data);
-                } else {
-                    setUsernameErrorNotification.innerText = response.data.message;
-                    showElement(setUsernameErrorNotification);
-                }
-            });
+        this.document.getElementById("set-user-name-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+        });
+        document
+            .getElementById("send-set-user-name-form")
+            .addEventListener("click", () =>
+                submitSetUsernameForm(
+                    usernameInput.value,
+                    setUsernameModal,
+                    setUsernameErrorNotification
+                )
+            );
+        usernameInput.addEventListener("keydown", (event) => {
+            if (event.key == "Enter") {
+                submitSetUsernameForm(
+                    usernameInput.value,
+                    setUsernameModal,
+                    setUsernameErrorNotification
+                );
+                event.stopImmediatePropagation();
+            }
+        });
+    }
+
+    function submitSetUsernameForm(username, setUsernameModal, setUsernameErrorNotification) {
+        socket.emit(eventNames.JOIN_ROOM_REQUEST, username, roomName, (response) => {
+            if (response.success) {
+                deActivateElement(setUsernameModal);
+                letTheGameBegin(socket, username, response.data);
+            } else {
+                setUsernameErrorNotification.innerText = response.data.message;
+                showElement(setUsernameErrorNotification);
+            }
         });
     }
 });
