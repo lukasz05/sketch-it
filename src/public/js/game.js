@@ -2,7 +2,6 @@ import { io } from "socket.io-client";
 import eventNames from "../../rooms/event-names.js";
 import { activateElement, deActivateElement, showElement, hideElement } from "./helpers.js";
 import { GameClient } from "./state-machine.js";
-import { UserData } from "../../common/user.js";
 
 const gameCanvasID = "game-canvas";
 
@@ -13,6 +12,7 @@ function letTheGameBegin(socket, username, room) {
     const guessInput = document.getElementById("guessInput");
     const sendGuess = document.getElementById("sendGuess");
     const startGame = document.getElementById("startGame");
+    // eslint-disable-next-line no-unused-vars
     const game = new GameClient(
         socket,
         username,

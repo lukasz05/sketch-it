@@ -1,3 +1,6 @@
+/*global p5*/
+/*global Symbol*/
+/*eslint no-undef: "error"*/
 import eventNames from "../../rooms/event-names.js";
 import {
     activateElement,
@@ -22,7 +25,6 @@ import { DomainError } from "../../common/utils.js";
 const STATE_DRAWING = Symbol("STATE_DRAWING");
 const STATE_GUESSING = Symbol("STATE_GUESSING");
 const STATE_IDLE = Symbol("STATE_IDLE");
-
 const PENCIL = Symbol("PENCIL");
 const ERASER = Symbol("ERASER");
 const HIGHLIGHTER = Symbol("HIGHLIGHTER");
@@ -62,7 +64,6 @@ class RoomData {
     }
 }
 
-/* TODO - edit room data on other requests */
 class GameClient {
     mainDrawing;
     guessInput;
