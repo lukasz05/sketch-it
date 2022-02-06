@@ -29,41 +29,6 @@ const PENCIL = Symbol("PENCIL");
 const ERASER = Symbol("ERASER");
 const HIGHLIGHTER = Symbol("HIGHLIGHTER");
 
-class RoomData {
-    name;
-    owner;
-    members;
-    socket;
-
-    constructor(socket, room) {
-        this.name = room.name;
-        this.owner = room.owner;
-        this.members = room.members;
-        this.socket = socket;
-        this.initializeEventListeners();
-    }
-
-    initializeEventListeners() {
-        this.socket.on(eventNames.USER_LEFT_ROOM_NOTIFICATION, (username) => {
-            delete this.members[username];
-        });
-        this.socket.on(eventNames.USER_JOINED_ROOM_NOTIFICATION, (userData) => {
-            this.members[userData.username] = userData;
-        });
-        this.socket.on(eventNames.ROOM_OWNER_CHANGED_NOTIFICATION, (username) => {
-            this.owner = username;
-        });
-    }
-
-    getMemberData(username) {
-        return this.members[username];
-    }
-
-    getUserColor(username) {
-        return this.members[username].color;
-    }
-}
-
 class GameClient {
     mainDrawing;
     guessInput;
@@ -89,6 +54,7 @@ class GameClient {
         socket,
         username,
         room,
+        roomData,
         canvasID,
         pencilBtn,
         highlighterBtn,
@@ -99,7 +65,7 @@ class GameClient {
     ) {
         /* Environment objects */
         this.socket = socket;
-        this.room = new RoomData(socket, room);
+        this.room = roomData;
         this.user = this.room.getMemberData(username);
         this.gameJustStarted = false;
         this.currentState = this.stateGuessing;

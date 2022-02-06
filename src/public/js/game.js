@@ -1,7 +1,9 @@
 import { io } from "socket.io-client";
 import eventNames from "../../rooms/event-names.js";
 import { activateElement, deActivateElement, showElement, hideElement } from "./helpers.js";
+import { Leaderboard } from "./leaderboard.js";
 import { GameClient } from "./state-machine.js";
+import RoomData from "./room-data.js";
 
 const gameCanvasID = "game-canvas";
 
@@ -12,11 +14,15 @@ function letTheGameBegin(socket, username, room) {
     const guessInput = document.getElementById("guessInput");
     const sendGuess = document.getElementById("sendGuess");
     const startGame = document.getElementById("startGame");
+
+    const roomData = new RoomData(socket, room);
+
     // eslint-disable-next-line no-unused-vars
     const game = new GameClient(
         socket,
         username,
         room,
+        roomData,
         gameCanvasID,
         pencilBtn,
         highlighterBtn,
@@ -25,6 +31,10 @@ function letTheGameBegin(socket, username, room) {
         sendGuess,
         startGame
     );
+
+    const leaderboardCardContent = document.getElementById("leaderboard-card-content");
+    // eslint-disable-next-line no-unused-vars
+    const leaderboard = new Leaderboard(socket, roomData, leaderboardCardContent);
 }
 
 window.addEventListener("load", function () {
