@@ -5,11 +5,12 @@ import { activateElement, deActivateElement, showElement, hideElement } from "./
 import Joi from "joi";
 
 const refreshRoomsIntervalInMilliseconds = 3000;
-const roomsPerPage = 10;
-let currentPage = 0;
+let roomsToBeDisplayedCount = 10;
+let roomsToBeDisplatedStep = 10;
 
 function displayRooms(rooms) {
     const roomDisplay = document.getElementById("rooms-display");
+    const showMoreRoomsButton = document.getElementById("show-more-rooms-button");
     /* Remove currently displayed rooms */
     roomDisplay.innerHTML = "";
     if (rooms.length > 0) {
@@ -17,21 +18,25 @@ function displayRooms(rooms) {
             let card = createRoomCard(room);
             roomDisplay.appendChild(card);
         }
+
+        if (rooms.length == roomsToBeDisplayedCount) {
+            showElement(showMoreRoomsButton);
+        }
     } else {
         const p = document.createElement("p");
         const message = document.createTextNode("No rooms to display!");
         p.classList.add("has-text-centered");
         p.appendChild(message);
         roomDisplay.appendChild(p);
+
+        hideElement(showMoreRoomsButton);
     }
 }
 
 function fetchRooms(socket) {
-    socket.emit(eventNames.GET_ROOMS_REQUEST, roomsPerPage, currentPage, (response) => {
+    socket.emit(eventNames.GET_ROOMS_REQUEST, roomsToBeDisplayedCount, 0, (response) => {
         if (response.success) {
             displayRooms(response.data);
-        } else {
-            /* handle failed responses */
         }
     });
 }
@@ -58,6 +63,8 @@ window.addEventListener("load", function () {
     const openRoomJoin = document.getElementById("open-room-join-form");
     const closeRoomJoin = document.getElementById("close-room-join-form");
     const sendRoomJoin = document.getElementById("send-room-join-form");
+
+    const showMoreRoomsButton = document.getElementById("show-more-rooms-button");
 
     openRoomCreation.addEventListener("click", () => {
         deActivateElement(joinModal);
@@ -131,6 +138,11 @@ window.addEventListener("load", function () {
                 window.location.replace(url);
             }
         });
+    });
+
+    showMoreRoomsButton.addEventListener("click", () => {
+        roomsToBeDisplayedCount += roomsToBeDisplatedStep;
+        fetchRooms(socket);
     });
 });
 

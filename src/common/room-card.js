@@ -23,8 +23,18 @@ function createRoomCard(room) {
     cardContent.classList.add("card-content");
     const content = document.createElement("div");
     content.classList.add("content");
-    const owner = document.createTextNode("Owner: " + room.owner);
-    content.appendChild(owner);
+    const members = document.createElement("p");
+    members.appendChild(document.createTextNode("Members: "));
+    const owner = document.createElement("strong");
+    owner.appendChild(document.createTextNode(room.owner));
+    members.appendChild(owner);
+    const membersStr = Object.keys(room.members)
+        .filter((username) => username != room.owner)
+        .join(", ");
+    if (membersStr.length > 0) {
+        members.appendChild(document.createTextNode(", " + membersStr));
+    }
+    content.appendChild(members);
     cardContent.appendChild(content);
 
     /* Create card footer */
