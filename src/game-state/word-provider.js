@@ -9,7 +9,7 @@ class WordProvider {
     }
 
     getRandomWord() {
-        return this.#words[Math.floor(Math.random() * this.#words.length)];
+        return this.#words[Math.floor(Math.random() * this.#words.length)].word;
     }
 }
 
