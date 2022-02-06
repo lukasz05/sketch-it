@@ -8,7 +8,8 @@
         "prettier": "prettier --check \"**/*.{js,json}\"",
         "lint": "eslint .",
         "test": "mocha",
-        "build": "webpack && sass ./src/public/sass/mystyles.scss ./src/public/css/style.css && echo css compiled successfully"
+        "build": "webpack && sass ./src/public/sass/mystyles.scss ./src/public/css/style.css && echo css compiled successfully",
+        "start": "npm run build && node ./src/app.js"
     },
     "repository": {
         "type": "git",
