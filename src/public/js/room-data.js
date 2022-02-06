@@ -4,12 +4,14 @@ class RoomData {
     name;
     owner;
     members;
+    hasGameStarted;
     socket;
 
     constructor(socket, room) {
         this.name = room.name;
         this.owner = room.owner;
         this.members = room.members;
+        this.hasGameStarted = room.hasGameStarted;
         this.socket = socket;
         this.initializeEventListeners();
     }

@@ -84,6 +84,12 @@ class GameStateRequestsHandler {
                             currentlyDrawingUser,
                             drawingEndTime
                         );
+                    this.#io
+                        .to(this.#getSocketByUsername(currentlyDrawingUser))
+                        .emit(
+                            eventNames.DRAW_THIS_WORD_NOTIFICATION,
+                            this.#guessingServices[room.name].getCurrentWord()
+                        );
                 }
             );
             const guessingService = new GuessingService(this.#wordProvider);
@@ -215,9 +221,18 @@ class GameStateRequestsHandler {
         return this.#roomService.getRoomByName(roomName);
     }
 
+    #getSocketByUsername(username) {
+        for (const socket in this.#socketToUserMap) {
+            if (this.#socketToUserMap[socket] == username) {
+                return socket;
+            }
+        }
+        throw new SocketNotInRoomError(`User: "${username}" does not belong to this room.`);
+    }
+
     #assertSocketInRoom(socket) {
         if (!this.#isSocketInRoom(socket)) {
-            throw new SocketNotInRoomError(`Socket "${socket.id}" does not belong to any room.`);
+            throw new SocketNotInRoomError(`Socket "${socket.id}" does not belong to this room.`);
         }
     }
 
