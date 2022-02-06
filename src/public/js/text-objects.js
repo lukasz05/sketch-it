@@ -29,7 +29,8 @@ const TIMER_TEXT_Y = 20;
 const TIMER_INITIAL_COLOR = paletteGrey.getColorByHTMLClass("is-black").rgb;
 
 const DRAW_ME_TEXT_SIZE = 20;
-const DRAW_ME_X = 50;
+
+const DRAW_ME_X = 80;
 const DRAW_ME_Y = 20;
 const DRAW_ME_COLOR = paletteGrey.getColorByHTMLClass("is-grey-darkest").rgb;
 

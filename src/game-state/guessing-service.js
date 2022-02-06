@@ -13,9 +13,6 @@ class GuessingService {
     guess(username, word) {
         const success = this.currentWord == word;
         this.#notifyListeners(username, word, success);
-        if (success) {
-            this.currentWord = this.#wordProvider.getRandomWord();
-        }
         return success;
     }
 
@@ -27,7 +24,8 @@ class GuessingService {
         this.#guessListeners.forEach((listener) => listener(username, word, success));
     }
 
-    getCurrentWord() {
+    getNewWord() {
+        this.currentWord = this.#wordProvider.getRandomWord();
         return this.currentWord;
     }
 }

@@ -88,7 +88,7 @@ class GameStateRequestsHandler {
                         .to(this.#getSocketByUsername(currentlyDrawingUser))
                         .emit(
                             eventNames.DRAW_THIS_WORD_NOTIFICATION,
-                            this.#guessingServices[room.name].getCurrentWord()
+                            this.#guessingServices[room.name].getNewWord()
                         );
                 }
             );
