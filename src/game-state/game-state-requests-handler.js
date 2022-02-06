@@ -227,12 +227,11 @@ class GameStateRequestsHandler {
                 return socket;
             }
         }
-        throw new SocketNotInRoomError(`User: "${username}" does not belong to this room.`);
     }
 
     #assertSocketInRoom(socket) {
         if (!this.#isSocketInRoom(socket)) {
-            throw new SocketNotInRoomError(`Socket "${socket.id}" does not belong to this room.`);
+            throw new SocketNotInRoomError(`Socket "${socket.id}" does not belong to any room.`);
         }
     }
 
