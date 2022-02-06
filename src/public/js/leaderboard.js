@@ -36,7 +36,6 @@ class Leaderboard {
     }
 
     #renderLeaderboard() {
-        console.log("Rendering leaderboard:", this.#room);
         const table = document.createElement("table");
         table.classList.add("table");
         Object.values(this.#room.members)
