@@ -9,8 +9,8 @@ import { fileURLToPath } from "url";
 import GameStateRequestsHandler from "./game-state/game-state-requests-handler.js";
 import WordProvider from "./game-state/word-provider.js";
 
-const PORT = process.env.PORT || 7777;
-const HOST = process.env.HOST || "0.0.0.0";
+const PORT = process.env.SERVER_PORT || 7777;
+const HOST = process.env.WEBSITE_HOSTNAME || "0.0.0.0";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
