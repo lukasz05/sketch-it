@@ -7,8 +7,7 @@ yarn-error.log*
 lerna-debug.log*
 
 # Minified js and compiled css
-src/public/js/dist/
-src/public/css/
+client/dist/
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -42,7 +41,8 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
+client/node_modules/
+server/node_modules/
 jspm_packages/
 
 # TypeScript v1 declaration files
