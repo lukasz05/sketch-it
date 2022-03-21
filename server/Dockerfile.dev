@@ -1,0 +1,12 @@
+FROM node:16
+
+COPY /server/package.json /server/package.json
+WORKDIR /server
+RUN npm install
+
+WORKDIR /
+COPY /common /common
+COPY /server /server
+
+WORKDIR /server
+ENTRYPOINT npm run start-dev

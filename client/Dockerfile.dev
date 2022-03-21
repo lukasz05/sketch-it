@@ -1,0 +1,14 @@
+FROM node:16
+
+ARG SERVER_URL
+
+COPY /client/package.json /client/package.json
+WORKDIR /client
+RUN npm install
+
+WORKDIR /
+COPY /common /common
+COPY /client /client
+
+WORKDIR /client
+ENTRYPOINT npm run start-dev

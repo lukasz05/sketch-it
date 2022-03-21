@@ -1,0 +1,32 @@
+{
+    "name": "sketch-it-client",
+    "version": "1.0.0",
+    "description": "",
+    "scripts": {
+        "prettier": "prettier --check \"**/*.{js,json}\"",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "webpack",
+        "start-dev": "webpack serve --mode development"
+    },
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "bulma": "^0.9.3",
+        "copy-webpack-plugin": "^10.2.4",
+        "css-loader": "^6.7.0",
+        "html-webpack-plugin": "^5.5.0",
+        "joi": "^17.6.0",
+        "mini-css-extract-plugin": "^2.6.0",
+        "node-sass": "^7.0.1",
+        "p5": "^1.4.1",
+        "prettier": "^2.5.1",
+        "sass-loader": "^12.6.0",
+        "socket.io-client": "^4.4.1",
+        "speed-measure-webpack-plugin": "^1.5.0",
+        "style-loader": "^3.3.1",
+        "webpack": "^5.70.0",
+        "webpack-bundle-analyzer": "^4.5.0",
+        "webpack-cli": "^4.9.2",
+        "webpack-dev-server": "^4.7.4"
+    }
+}

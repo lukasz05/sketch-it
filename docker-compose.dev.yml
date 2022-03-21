@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+    webapp:
+        container_name: sketch-it-webapp-dev
+        image: sketch-it-webapp-dev
+        build:
+            context: .
+            dockerfile: ./client/Dockerfile.dev
+        restart: always
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./client/src:/client/src
+            - ./common:/common
+    server:
+        container_name: sketch-it-server-dev
+        image: sketch-it-server-dev
+        build:
+            context: .
+            dockerfile: ./server/Dockerfile.dev
+        ports:
+            - "7777:7777"
+        volumes:
+            - ./server/src:/server/src
+            - ./common:/common
+

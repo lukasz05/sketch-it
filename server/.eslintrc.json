@@ -1,0 +1,14 @@
+{
+    "env": {
+        "browser": true,
+        "node": true,
+        "mocha": true
+    },
+    "extends": ["eslint:recommended", "prettier"],
+    "parserOptions": {
+        "ecmaVersion": 13,
+        "sourceType": "module"
+    },
+    "ignorePatterns": ["src/public/js/dist/*.js"],
+    "rules": {}
+}

@@ -1,0 +1,39 @@
+{
+    "name": "sketch-it-server",
+    "version": "1.0.0",
+    "description": "",
+    "type": "module",
+    "scripts": {
+        "prettier": "prettier --check \"**/*.{js,json}\"",
+        "lint": "eslint .",
+        "test": "mocha",
+        "start": "node ./src/app.js",
+        "start-dev": "nodemon ./src/app.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/lukasz05/drawing-game.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/lukasz05/drawing-game/issues"
+    },
+    "homepage": "https://github.com/lukasz05/drawing-game#readme",
+    "dependencies": {
+        "chai": "^4.3.4",
+        "ejs": "^3.1.6",
+        "eslint": "^8.6.0",
+        "eslint-config-prettier": "^8.3.0",
+        "express": "^4.17.2",
+        "joi": "^17.6.0",
+        "mocha": "^9.1.3",
+        "nodemon": "^2.0.15",
+        "prettier": "^2.5.1",
+        "socket.io": "^4.4.1",
+        "socket.io-client": "^4.4.1",
+        "webpack": "^5.67.0",
+        "webpack-cli": "^4.9.2"
+    }
+}

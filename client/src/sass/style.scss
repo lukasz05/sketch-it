@@ -1,0 +1,33 @@
+/* Main styles file */
+@charset "utf-8";
+
+@import "./colors.scss";
+@import "bulma/sass/utilities/_all.sass";
+@import "bulma/sass/base/_all.sass";
+@import "bulma/sass/elements/button.sass";
+@import "bulma/sass/grid/tiles.sass";
+@import "bulma/sass/helpers/typography.sass";
+@import "bulma/sass/form/shared.sass";
+@import "bulma/sass/form/input-textarea.sass";
+@import "bulma/sass/elements/container.sass";
+@import "bulma/sass/layout/hero.sass";
+@import "bulma/sass/layout/section.sass";
+@import "bulma/sass/components/card.sass";
+@import "bulma/sass/components/modal.sass";
+@import "bulma/sass/elements/notification.sass";
+@import "bulma/sass/helpers/visibility.sass";
+@import "bulma/sass/helpers/spacing.sass";
+@import "bulma/sass/helpers/color.sass";
+@import "bulma/sass/grid/columns.sass";
+
+/* main button style */
+.main-control {
+    margin-top: 100px;
+}
+
+/* for debugging */
+.has-borders {
+    border-style: solid;
+    border-width: 4px;
+    border-color: $red;
+}
