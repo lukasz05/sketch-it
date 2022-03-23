@@ -12,6 +12,8 @@ on:
 env:
   AZURE_WEBAPP_NAME: sketch-it-server
   NODE_VERSION: "16.x"
+  NODE_ENV: "production"
+  SERVER_URL: ${{ secrets.SERVER_URL }}
 
 jobs:
   build-and-deploy:
