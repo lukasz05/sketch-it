@@ -9,6 +9,10 @@ on:
       - common/**
   workflow_dispatch:
 
+env:
+  NODE_ENV: "production"
+  SERVER_URL: ${{ secrets.SERVER_URL }}
+
 jobs:
   build_and_deploy_job:
     runs-on: ubuntu-latest
