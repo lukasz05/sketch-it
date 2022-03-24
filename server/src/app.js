@@ -25,7 +25,7 @@ const server = createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "https://jolly-island-0a4fc1003.1.azurestaticapps.net",
+        origin: "*",
     },
 });
 
